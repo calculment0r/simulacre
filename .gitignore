@@ -1,0 +1,11 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# éditeurs
+*.swp
+*~
+
+# node (au cas où)
+node_modules/
