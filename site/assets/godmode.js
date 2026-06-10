@@ -305,11 +305,13 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
         </div>
       </div>
 
-      <div class="gm-panel" data-panel="edit" hidden>
-        <div class="gm-lab">✎ éditer le fragment à la main</div>
-        <textarea class="gm-handedit" rows="8">${esc(currentText(n))}</textarea>
+      <div class="gm-panel gm-edit-panel" data-panel="edit" hidden>
+        <div class="gm-lab">✎ éditer à la main</div>
+        <textarea class="gm-handedit" rows="6" spellcheck="false">${esc(currentText(n))}</textarea>
+        <p class="gm-edit-hint">ta version remplace le fragment dans le fil — l'original reste dans le carrousel et le vault.</p>
         <div class="gm-actions">
-          <button class="gm-save-manual">✓ enregistrer ma version</button>
+          <button class="gm-save-manual">enregistrer ma version</button>
+          <button class="gm-edit-cancel">réinitialiser</button>
           <span class="gm-edit-status"></span>
         </div>
       </div>
@@ -337,10 +339,14 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     const isActive = v.id === activeId;
     const mark = v.origin === 'manual' ? '✎ ' : '';
     const who = v.origin === 'canonical' ? 'original' : `${mark}${v.author || '?'}${v.ts ? ' · ' + fmtDate(v.ts) : ''}`;
+    const canDelete = v.origin !== 'canonical' && v.author === author();
     return `<div class="gm-slide${i === 0 ? ' show' : ''}" data-i="${i}" data-id="${esc(v.id)}">
       <div class="gm-slide-meta"><span class="gm-who">${esc(who)}</span>${isActive ? '<span class="gm-active-tag">dans le fil</span>' : ''}</div>
       <div class="gm-slide-text">${md(v.fragment).replace(/\n/g, '<br>')}</div>
-      ${isActive ? '' : `<button class="gm-validate" data-id="${esc(v.id)}">valider cette version → la remettre dans le fil</button>`}
+      <div class="gm-slide-actions">
+        ${isActive ? '' : `<button class="gm-validate" data-id="${esc(v.id)}">valider → dans le fil</button>`}
+        ${canDelete ? `<button class="gm-del" data-id="${esc(v.id)}" title="tu ne peux supprimer que tes propres versions">supprimer</button>` : ''}
+      </div>
     </div>`;
   }
 
@@ -384,6 +390,11 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     // édition manuelle
     const saveBtn = gm.querySelector('.gm-save-manual');
     if (saveBtn) saveBtn.addEventListener('click', () => saveManual(gm, n));
+    const cancelBtn = gm.querySelector('.gm-edit-cancel');
+    if (cancelBtn) cancelBtn.addEventListener('click', () => {
+      const e2 = gm.querySelector('.gm-handedit'); if (e2) e2.value = currentText(n);
+      const st = gm.querySelector('.gm-edit-status'); if (st) st.textContent = 'réinitialisé';
+    });
     // régénération
     const regenBtn = gm.querySelector('.gm-regen');
     if (regenBtn) regenBtn.addEventListener('click', () => doRegen(gm, n));
@@ -417,6 +428,28 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     }
     // validation d'une version
     car.querySelectorAll('.gm-validate').forEach((b) => b.addEventListener('click', () => validate(n, b.dataset.id)));
+    // suppression (uniquement ses propres versions)
+    car.querySelectorAll('.gm-del').forEach((b) => b.addEventListener('click', () => {
+      if (confirm('Supprimer définitivement cette version ?')) deleteVersion(n, b.dataset.id);
+    }));
+  }
+
+  // supprime une version — sécurité : seulement celles créées par l'utilisateur courant
+  async function deleteVersion(n, id) {
+    const entry = VARIANTS[n];
+    if (!entry) return;
+    const v = (entry.versions || []).find((x) => x.id === id);
+    if (!v || v.author !== author()) return; // pas les versions des autres
+    entry.versions = entry.versions.filter((x) => x.id !== id);
+    if (entry.activeId === id) entry.activeId = 'orig'; // version active supprimée → retour à l'original
+    const gm = document.querySelector('.gm[data-n="' + n + '"]');
+    if (gm) {
+      const en = gm.closest('.entry');
+      const ft = en && en.querySelector('.fragment-text');
+      if (ft) { const a = activeFragment(n); ft.innerHTML = renderFrag(a != null ? a : (thesisOf(n) || {}).fragment); }
+      refreshCarousel(gm, n, false);
+    }
+    await persist(null);
   }
 
   // met à jour UNIQUEMENT ce fragment (carrousel + badge) sans recharger ni scroller
@@ -495,6 +528,46 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     await persist(null);
   }
 
+  // ════════════════ DASHBOARD « mon atelier » ═════════════════════
+  const chMeta = (ch) => (window.CHAPITRES || []).find((c) => c.ch === ch);
+  const fragNo = (n) => String(n).padStart(3, '0');
+
+  function myFragments() {
+    const me = author();
+    return (window.THESES || [])
+      .filter((t) => { const e = VARIANTS[t.n]; return e && (e.versions || []).some((v) => v.author === me); })
+      .sort((a, b) => a.n - b.n);
+  }
+
+  function renderDashboard(contentEl) {
+    const me = author();
+    const mine = myFragments();
+    const rows = mine.map((t) => {
+      const e = VARIANTS[t.n];
+      const myV = e.versions.filter((v) => v.author === me);
+      const last = myV.reduce((m, v) => (!m || v.ts > m.ts ? v : m), null);
+      const meta = chMeta(t.chapitre);
+      const activeId = activeIdOf(t.n);
+      const activeV = e.versions.find((v) => v.id === activeId);
+      const inFil = activeId !== 'orig' && activeV && activeV.author === me;
+      return `<article class="dash-row">
+        <div class="dash-head">
+          <a class="dash-n" href="#f-${t.n}">fragment ${fragNo(t.n)}</a>
+          <span class="dash-ch">ch.${String(t.chapitre).padStart(2, '0')} · ${esc(meta ? meta.titre : '')}</span>
+          <span class="dash-info">${myV.length} version${myV.length > 1 ? 's' : ''}${last ? ' · ' + fmtDate(last.ts) : ''}${inFil ? ' · <b>dans le fil</b>' : ''}</span>
+        </div>
+        <div class="dash-text">${renderFrag(currentText(t.n))}</div>
+        <a class="dash-open" href="#f-${t.n}">→ ouvrir &amp; éditer</a>
+      </article>`;
+    }).join('');
+    contentEl.innerHTML = `<header class="ch-head">
+        <div class="label">god mode · ${esc(me)}</div>
+        <h1>mon atelier</h1>
+        <div class="sub">les fragments que tu as modifiés — ${mine.length} au total. clique un fragment pour l'ouvrir dans son chapitre.</div>
+      </header>
+      ${mine.length ? rows : '<p class="dash-empty">tu n\'as encore modifié aucun fragment. ouvre-en un, régénère ou édite, valide — il apparaîtra ici.</p>'}`;
+  }
+
   // ════════════════ SIDEBAR : bouton + réglages ═══════════════════
   function onRenderSidebar(sidebarEl) {
     const foot = sidebarEl.querySelector('.side-foot');
@@ -503,12 +576,13 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     const ctl = document.createElement('div');
     ctl.className = 'gm-side';
     ctl.innerHTML = on
-      ? `<div class="gm-side-on">● god mode — <b>${author()}</b> <button id="gmSettings">réglages</button> <button id="gmLock">quitter</button></div>`
+      ? `<div class="gm-side-on">● god mode — <a class="gm-name" href="#mine" title="mon atelier"><b>${author()}</b></a> <button id="gmSettings">réglages</button> <button id="gmLock">quitter</button></div>
+         <a class="gm-dash-link" href="#mine">⌂ mon atelier (${myFragments().length})</a>`
       : `<button id="gmEnter">⌁ god mode</button>`;
     foot.appendChild(ctl);
 
     if (on) {
-      sidebarEl.querySelector('#gmLock').onclick = () => { LS.code = ''; if (window.__simRoute) window.__simRoute(); };
+      sidebarEl.querySelector('#gmLock').onclick = () => { LS.code = ''; location.hash = ''; if (window.__simRoute) window.__simRoute(); };
       sidebarEl.querySelector('#gmSettings').onclick = openSettings;
     } else {
       sidebarEl.querySelector('#gmEnter').onclick = openUnlock;
@@ -564,5 +638,5 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   loadVariants();
   loadMetas();
 
-  window.GodMode = { isOn, author, activeFragment, controlsHTML, onRenderChapter, onRenderSidebar };
+  window.GodMode = { isOn, author, activeFragment, controlsHTML, onRenderChapter, onRenderSidebar, renderDashboard };
 })();

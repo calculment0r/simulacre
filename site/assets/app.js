@@ -140,6 +140,14 @@
 
   // ── orchestration ───────────────────────────────────────────────
   function route() {
+    // dashboard god mode « mon atelier »
+    if (location.hash === '#mine' && window.GodMode && window.GodMode.isOn() && window.GodMode.renderDashboard) {
+      renderSidebar(0);
+      window.GodMode.renderDashboard($('#content'));
+      document.body.classList.remove('nav-open');
+      window.scrollTo(0, 0);
+      return;
+    }
     const { chapitre, focus } = parseHash();
     renderSidebar(chapitre);
     renderChapter(chapitre);
