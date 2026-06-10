@@ -86,6 +86,9 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
 
   const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const md = (s) => esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  const renderFrag = (txt) =>
+    String(txt == null ? '' : txt).split(/\n{2,}/).map((p) => p.trim()).filter(Boolean)
+      .map((p) => '<p>' + md(p).replace(/\n/g, '<br>') + '</p>').join('');
   const pad3 = (n) => String(n).padStart(2, '0');
   const fmtDate = (ts) =>
     ts
@@ -386,6 +389,28 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     car.querySelectorAll('.gm-validate').forEach((b) => b.addEventListener('click', () => validate(n, b.dataset.id)));
   }
 
+  // met à jour UNIQUEMENT ce fragment (carrousel + badge) sans recharger ni scroller
+  function refreshCarousel(gm, n, goToNewest) {
+    const car = gm.querySelector('.gm-carousel');
+    if (car) {
+      car.dataset.active = activeIdOf(n);
+      car.innerHTML = carouselHTML(n);
+      wireCarousel(gm, n);
+    }
+    const total = versionsOf(n).length;
+    let cnt = gm.querySelector('.gm-count');
+    if (!cnt && total > 1) {
+      cnt = document.createElement('span');
+      cnt.className = 'gm-count';
+      gm.querySelector('.gm-bar').appendChild(cnt);
+    }
+    if (cnt) cnt.textContent = total > 1 ? total + ' versions' : '';
+    if (goToNewest && car) {
+      const dots = car.querySelectorAll('.gm-dot');
+      if (dots.length) dots[dots.length - 1].click(); // affiche la version la plus récente
+    }
+  }
+
   async function doRegen(gm, n) {
     const status = gm.querySelector('.gm-status');
     const tweak = (gm.querySelector('.gm-tweak') || {}).value || '';
@@ -398,8 +423,8 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
       VARIANTS[n] = VARIANTS[n] || { activeId: 'orig', versions: [] };
       VARIANTS[n].versions.push({ id: rid(), fragment, author: author(), ts: Date.now(), tweak, weights, model: MODEL });
       status.textContent = 'nouvelle version créée ✓';
+      refreshCarousel(gm, n, true); // maj sur place, on reste où on est
       await persist(status);
-      if (window.__simRoute) window.__simRoute();
     } catch (e) {
       status.textContent = '✗ ' + e.message;
     }
@@ -408,8 +433,18 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   async function validate(n, id) {
     VARIANTS[n] = VARIANTS[n] || { activeId: 'orig', versions: [] };
     VARIANTS[n].activeId = id;
+    // maj sur place : le texte « dans le fil » + le carrousel, sans recharger ni scroller
+    const gm = document.querySelector('.gm[data-n="' + n + '"]');
+    if (gm) {
+      const entry = gm.closest('.entry');
+      const ft = entry && entry.querySelector('.fragment-text');
+      if (ft) {
+        const a = activeFragment(n);
+        ft.innerHTML = renderFrag(a != null ? a : (thesisOf(n) || {}).fragment);
+      }
+      refreshCarousel(gm, n, false);
+    }
     await persist(null);
-    if (window.__simRoute) window.__simRoute();
   }
 
   // ════════════════ SIDEBAR : bouton + réglages ═══════════════════
