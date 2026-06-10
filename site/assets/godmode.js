@@ -260,6 +260,13 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   }
 
   // ════════════════ RENDU DES CONTRÔLES (par fragment) ════════════
+  function currentText(n) {
+    const a = activeFragment(n);
+    if (a != null) return a;
+    const t = thesisOf(n);
+    return t ? t.fragment : '';
+  }
+
   function controlsHTML(t) {
     const n = t.n;
     const vs = versionsOf(n);
@@ -278,6 +285,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
       <div class="gm-bar">
         <button class="gm-acc-btn" data-panel="ctx">▸ contexte</button>
         <button class="gm-acc-btn" data-panel="tweak">▸ tweak</button>
+        <button class="gm-acc-btn" data-panel="edit">▸ éditer</button>
         ${vs.length > 1 ? `<span class="gm-count">${vs.length} versions</span>` : ''}
       </div>
 
@@ -294,6 +302,15 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
         <div class="gm-actions">
           <button class="gm-regen">⟳ régénérer avec Opus 4.8</button>
           <span class="gm-status"></span>
+        </div>
+      </div>
+
+      <div class="gm-panel" data-panel="edit" hidden>
+        <div class="gm-lab">✎ éditer le fragment à la main</div>
+        <textarea class="gm-handedit" rows="8">${esc(currentText(n))}</textarea>
+        <div class="gm-actions">
+          <button class="gm-save-manual">✓ enregistrer ma version</button>
+          <span class="gm-edit-status"></span>
         </div>
       </div>
 
@@ -318,7 +335,8 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
 
   function slideHTML(n, v, i, activeId) {
     const isActive = v.id === activeId;
-    const who = v.origin === 'canonical' ? 'original' : `${v.author || '?'}${v.ts ? ' · ' + fmtDate(v.ts) : ''}`;
+    const mark = v.origin === 'manual' ? '✎ ' : '';
+    const who = v.origin === 'canonical' ? 'original' : `${mark}${v.author || '?'}${v.ts ? ' · ' + fmtDate(v.ts) : ''}`;
     return `<div class="gm-slide${i === 0 ? ' show' : ''}" data-i="${i}" data-id="${esc(v.id)}">
       <div class="gm-slide-meta"><span class="gm-who">${esc(who)}</span>${isActive ? '<span class="gm-active-tag">dans le fil</span>' : ''}</div>
       <div class="gm-slide-text">${md(v.fragment).replace(/\n/g, '<br>')}</div>
@@ -340,8 +358,15 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
         const which = btn.dataset.panel;
         const panel = gm.querySelector(`.gm-panel[data-panel="${which}"]`);
         const open = panel.hasAttribute('hidden');
-        if (open) { panel.removeAttribute('hidden'); btn.textContent = '▾ ' + btn.textContent.slice(2); }
-        else { panel.setAttribute('hidden', ''); btn.textContent = '▸ ' + btn.textContent.slice(2); }
+        if (open) {
+          panel.removeAttribute('hidden');
+          btn.textContent = '▾ ' + btn.textContent.slice(2);
+          // à l'ouverture de l'éditeur, repartir du texte courant (dernière version dans le fil)
+          if (which === 'edit') { const ed = panel.querySelector('.gm-handedit'); if (ed) ed.value = currentText(n); }
+        } else {
+          panel.setAttribute('hidden', '');
+          btn.textContent = '▸ ' + btn.textContent.slice(2);
+        }
       });
     });
     // sliders
@@ -354,6 +379,11 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     // textarea mobile : recentre l'entrée quand le clavier monte
     const ta = gm.querySelector('.gm-tweak');
     if (ta) ta.addEventListener('focus', () => setTimeout(() => ta.scrollIntoView({ block: 'center', behavior: 'smooth' }), 250));
+    const hta = gm.querySelector('.gm-handedit');
+    if (hta) hta.addEventListener('focus', () => setTimeout(() => hta.scrollIntoView({ block: 'center', behavior: 'smooth' }), 250));
+    // édition manuelle
+    const saveBtn = gm.querySelector('.gm-save-manual');
+    if (saveBtn) saveBtn.addEventListener('click', () => saveManual(gm, n));
     // régénération
     const regenBtn = gm.querySelector('.gm-regen');
     if (regenBtn) regenBtn.addEventListener('click', () => doRegen(gm, n));
@@ -428,6 +458,24 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     } catch (e) {
       status.textContent = '✗ ' + e.message;
     }
+  }
+
+  // enregistre une édition manuelle comme nouvelle version (et la met dans le fil)
+  async function saveManual(gm, n) {
+    const status = gm.querySelector('.gm-edit-status');
+    const ta = gm.querySelector('.gm-handedit');
+    const txt = (ta ? ta.value : '').trim();
+    if (!txt) { if (status) status.textContent = 'texte vide'; return; }
+    VARIANTS[n] = VARIANTS[n] || { activeId: 'orig', versions: [] };
+    const id = rid();
+    VARIANTS[n].versions.push({ id, fragment: txt, author: author(), ts: Date.now(), origin: 'manual' });
+    VARIANTS[n].activeId = id; // l'édition manuelle passe directement dans le fil
+    const entry = gm.closest('.entry');
+    const ft = entry && entry.querySelector('.fragment-text');
+    if (ft) ft.innerHTML = renderFrag(txt);
+    refreshCarousel(gm, n, true);
+    if (status) status.textContent = 'version enregistrée ✓ (dans le fil)';
+    await persist(status);
   }
 
   async function validate(n, id) {
