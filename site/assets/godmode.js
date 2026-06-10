@@ -80,6 +80,7 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
   };
 
   let VARIANTS = {};       // { n: { activeId, versions:[...] } }
+  let METAS = {};          // { n: "méta-restitution" } — pré-générées (data/metas.json)
   let varsSha = null;      // sha du fichier GitHub (pour commit)
   let loaded = false;
 
@@ -121,6 +122,15 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
       if (r.ok) VARIANTS = await r.json();
     } catch (e) { /* fichier absent au début : on part de {} */ }
     loaded = true;
+    if (window.__simRoute) window.__simRoute();
+  }
+
+  // ── chargement des méta-restitutions pré-générées ───────────────
+  async function loadMetas() {
+    try {
+      const r = await fetch('data/metas.json?_=' + Date.now(), { cache: 'no-store' });
+      if (r.ok) METAS = await r.json();
+    } catch (e) { /* absent : contexte en repli */ }
     if (window.__simRoute) window.__simRoute();
   }
 
@@ -211,7 +221,7 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
   // régénère un fragment (Face A) — ne part PAS de Debord, garde le style Tiqqun
   async function regenerate(n, tweak, weights) {
     const t = thesisOf(n);
-    const sujet = (VARIANTS[n] && VARIANTS[n].meta) || t.sens_pour_debord;
+    const sujet = (VARIANTS[n] && VARIANTS[n].meta) || METAS[n] || t.sens_pour_debord;
     const ops = operatorsForThesis(t)
       .map(([name]) => `${name}: ${weights[name] != null ? weights[name] : 65}`)
       .join(' · ');
@@ -259,7 +269,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
         <input type="range" min="0" max="100" value="${w}" data-op="${esc(name)}">
       </div>`;
     }).join('');
-    const hasMeta = !!(VARIANTS[n] && VARIANTS[n].meta);
+    const meta = (VARIANTS[n] && VARIANTS[n].meta) || METAS[n] || '';
 
     return `<div class="gm" data-n="${n}">
       <div class="gm-bar">
@@ -270,11 +280,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
 
       <div class="gm-panel" data-panel="ctx" hidden>
         <div class="gm-lab">méta-restitution — de quoi parle ce fragment</div>
-        <p class="gm-meta${hasMeta ? '' : ' gm-meta-fallback'}">${hasMeta ? esc(VARIANTS[n].meta) : esc(metaFallback(t))}</p>
-        <div class="gm-actions">
-          <button class="gm-meta-gen">⟳ ${hasMeta ? 'régénérer' : 'générer'} le contexte</button>
-          <span class="gm-meta-status"></span>
-        </div>
+        <p class="gm-meta${meta ? '' : ' gm-meta-fallback'}">${meta ? esc(meta) : esc(metaFallback(t))}</p>
       </div>
 
       <div class="gm-panel" data-panel="tweak" hidden>
@@ -345,30 +351,11 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     // textarea mobile : recentre l'entrée quand le clavier monte
     const ta = gm.querySelector('.gm-tweak');
     if (ta) ta.addEventListener('focus', () => setTimeout(() => ta.scrollIntoView({ block: 'center', behavior: 'smooth' }), 250));
-    // génération du contexte (méta-restitution)
-    const metaBtn = gm.querySelector('.gm-meta-gen');
-    if (metaBtn) metaBtn.addEventListener('click', () => doMeta(gm, n));
     // régénération
     const regenBtn = gm.querySelector('.gm-regen');
     if (regenBtn) regenBtn.addEventListener('click', () => doRegen(gm, n));
     // carrousel
     wireCarousel(gm, n);
-  }
-
-  async function doMeta(gm, n) {
-    const status = gm.querySelector('.gm-meta-status');
-    status.textContent = '… Opus 4.8';
-    try {
-      const meta = await generateMeta(n);
-      if (!meta) throw new Error('réponse vide');
-      VARIANTS[n] = VARIANTS[n] || { activeId: 'orig', versions: [] };
-      VARIANTS[n].meta = meta;
-      status.textContent = 'contexte généré ✓';
-      await persist(status);
-      if (window.__simRoute) window.__simRoute();
-    } catch (e) {
-      status.textContent = '✗ ' + e.message;
-    }
   }
 
   function wireCarousel(gm, n) {
@@ -492,6 +479,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   // ── init ────────────────────────────────────────────────────────
   loadLocalInto();
   loadVariants();
+  loadMetas();
 
   window.GodMode = { isOn, author, activeFragment, controlsHTML, onRenderChapter, onRenderSidebar };
 })();
