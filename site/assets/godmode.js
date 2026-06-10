@@ -16,7 +16,7 @@
   // Proxy facultatif (Cloudflare Worker) qui détient la clé côté serveur.
   // Vide → appel direct navigateur avec la clé collée en réglages.
   // Renseigné → Eric n'a aucune clé à entrer (clé cachée dans le proxy).
-  const PROXY_URL = '';
+  const PROXY_URL = 'https://simulacre-proxy.luxigone.workers.dev';
 
   // ── identités ───────────────────────────────────────────────────
   const USERS = { '007': 'Cal', '666': 'Eric' };
