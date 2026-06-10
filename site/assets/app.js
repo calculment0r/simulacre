@@ -7,18 +7,6 @@
   const T = window.THESES || [];
   const CH = window.CHAPITRES || [];
 
-  const DESCR = {
-    1: "la séparation, l'externalisation de la pensée.",
-    2: 'la marchandise, le fétichisme du modèle.',
-    3: "concentré et diffus, fausse unité, ouvert et fermé, l'alignement comme variable politique.",
-    4: 'le cœur politique : le sujet dépossédé, les fausses résistances, la souveraineté cognitive, les formes non-séparées.',
-    5: 'temps pseudo-cyclique et irréversible, le corpus mort, l’archi-fossile.',
-    6: 'cycles de release, pseudo-événements, présent perpétuel.',
-    7: 'géographie du calcul, matérialité, souveraineté matérielle.',
-    8: "dissolution de l'art, langue moyenne, récupération, détournement.",
-    9: "l'idéologie devenue infrastructure — le dénouement.",
-  };
-
   const EPIGRAPHE =
     "nul n'a jamais autant transformé le monde qu'en affirmant ne pas y toucher. l'innocence est la forme que prend aujourd'hui la puissance qui a cessé d'avoir besoin de se légitimer.";
 
@@ -134,9 +122,9 @@
     const next = chMeta(ch + 1);
 
     const head = `<header class="ch-head">
-      <div class="label">Chapitre ${pad(ch)} · ${meta.min}–${meta.max}</div>
+      <div class="label">Chapitre ${pad(ch)} · ${meta.min}–${meta.max}${meta.cat ? ' · ' + esc(meta.cat) : ''}</div>
       <h1>${esc(meta.titre)}</h1>
-      <div class="sub">${esc(DESCR[ch] || '')}</div>
+      <div class="sub">${esc(meta.logline || '')}</div>
     </header>`;
 
     const entries = list.map(renderEntry).join('');

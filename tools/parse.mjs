@@ -11,15 +11,24 @@ const OUT = join(ROOT, 'site', 'data');
 
 // ── Mapping chapitres (titres autonomes, cf. CLAUDE.md §9) ──────────────
 const CHAPTERS = [
-  { ch: 1, titre: 'La faculté séparée', min: 1, max: 34 },
-  { ch: 2, titre: 'La cognition comme marchandise', min: 35, max: 53 },
-  { ch: 3, titre: "L'unité apparente de l'intelligence", min: 54, max: 72 },
-  { ch: 4, titre: "De l'utilisateur à l'opérateur", min: 73, max: 124 },
-  { ch: 5, titre: 'Temps, inférence et histoire', min: 125, max: 146 },
-  { ch: 6, titre: 'Le quotidien génératif', min: 147, max: 164 },
-  { ch: 7, titre: "L'infrastructure du Simulacre", min: 165, max: 179 },
-  { ch: 8, titre: 'La culture et la négation générée', min: 180, max: 211 },
-  { ch: 9, titre: "L'idéologie opératoire", min: 212, max: 221 },
+  { ch: 1, titre: 'Exonoèse', cat: 'concept', min: 1, max: 34,
+    logline: "La pensée s'exerce désormais hors de qui se croyait son sujet. Ce qu'on nomme gain de temps est le nom propre du transfert." },
+  { ch: 2, titre: 'Narcisse Technē', cat: 'économie', min: 35, max: 53,
+    logline: "La faculté s'est faite marchandise, et la marchandise, miroir. On loue à la demande ce qu'on savait faire, et l'on s'éprend de son reflet automatisé." },
+  { ch: 3, titre: 'Fragmentations calibrées', cat: 'fausse unité', min: 54, max: 72,
+    logline: "Une seule intelligence pour tous : l'unité est une façade que la propriété calibre. La démocratisation est le nom poli de la dépendance." },
+  { ch: 4, titre: 'Unititudes', cat: 'sujet', min: 73, max: 124,
+    logline: "Le seul sujet qui pourrait le nier est partout et nulle part : dispersé, mis en concurrence, seul devant son écran. Tout se joue à ce qu'il cesse d'être utilisateur." },
+  { ch: 5, titre: 'Chronofossile', cat: 'histoire', min: 125, max: 146,
+    logline: "Le modèle est un passé gelé qui parle au présent. L'interroger, c'est interroger un mort très bien informé sur la veille de sa mort." },
+  { ch: 6, titre: 'Still Loading', cat: 'quotidien', min: 147, max: 164,
+    logline: "Le temps gagné est un temps vidé. On guette la version suivante comme jadis les saisons, dans un présent qui se relance et n'arrive jamais." },
+  { ch: 7, titre: 'Atmotechnie', cat: 'infrastructure', min: 165, max: 179,
+    logline: "Le nuage n'a rien d'aérien : un bunker climatisé fabrique l'air qu'on respire en pensant. Rien de plus matériel que ce qu'on dit immatériel." },
+  { ch: 8, titre: 'Inflammation acéphale', cat: 'culture', min: 180, max: 211,
+    logline: "La culture sans tête prolifère : style de personne, œuvre sans main, négation devenue générable. Le système fournit déjà la forme de sa propre critique." },
+  { ch: 9, titre: 'Hyperstition / Hyperstructure', cat: 'idéologie totale', min: 212, max: 221,
+    logline: "L'idéologie n'est plus crue, elle est exécutée. Ce qui tourne tient lieu de preuve. On ne réfute pas une fiction qui se rend vraie en se bâtissant : on l'éteint." },
 ];
 const chapForN = (n) => CHAPTERS.find((c) => n >= c.min && n <= c.max);
 
@@ -221,7 +230,7 @@ writeFileSync(join(OUT, 'theses.json'), json, 'utf8');
 writeFileSync(
   join(OUT, 'theses.js'),
   `// Généré par tools/parse.mjs — ne pas éditer à la main.\nwindow.THESES = ${json};\nwindow.CHAPITRES = ${JSON.stringify(
-    CHAPTERS.map(({ ch, titre, min, max }) => ({ ch, titre, min, max })),
+    CHAPTERS.map(({ ch, titre, cat, logline, min, max }) => ({ ch, titre, cat, logline, min, max })),
     null,
     2
   )};\n`,

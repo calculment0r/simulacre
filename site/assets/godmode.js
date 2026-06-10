@@ -86,6 +86,10 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
   const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const md = (s) => esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>');
   const pad3 = (n) => String(n).padStart(2, '0');
+  const fmtDate = (ts) =>
+    ts
+      ? new Date(ts).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
+      : '';
   let ridCounter = 0;
   const rid = () => 'v_' + Math.abs(Date.now() % 1e9).toString(36) + '_' + ++ridCounter;
   const thesisOf = (n) => (window.THESES || []).find((t) => t.n === n);
@@ -298,14 +302,14 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     const vs = versionsOf(n);
     if (vs.length <= 1) return '';
     const activeId = activeIdOf(n);
-    const dots = vs.map((v, i) => `<button class="gm-dot${i === 0 ? ' cur' : ''}" data-i="${i}" title="${v.origin === 'canonical' ? 'original' : (v.author || '?') + ' · variante'}"></button>`).join('');
+    const dots = vs.map((v, i) => `<button class="gm-dot${i === 0 ? ' cur' : ''}" data-i="${i}" title="${v.origin === 'canonical' ? 'original' : (v.author || '?') + (v.ts ? ' · ' + fmtDate(v.ts) : '')}"></button>`).join('');
     return `<div class="gm-car-head"><span class="gm-lab">versions — swipe</span><div class="gm-dots">${dots}</div></div>
       <div class="gm-car-track">${vs.map((v, i) => slideHTML(n, v, i, activeId)).join('')}</div>`;
   }
 
   function slideHTML(n, v, i, activeId) {
     const isActive = v.id === activeId;
-    const who = v.origin === 'canonical' ? 'original' : `${v.author || '?'}${v.ts ? ' · ' + new Date(v.ts).toLocaleDateString('fr-FR') : ''}`;
+    const who = v.origin === 'canonical' ? 'original' : `${v.author || '?'}${v.ts ? ' · ' + fmtDate(v.ts) : ''}`;
     return `<div class="gm-slide${i === 0 ? ' show' : ''}" data-i="${i}" data-id="${esc(v.id)}">
       <div class="gm-slide-meta"><span class="gm-who">${esc(who)}</span>${isActive ? '<span class="gm-active-tag">dans le fil</span>' : ''}</div>
       <div class="gm-slide-text">${md(v.fragment).replace(/\n/g, '<br>')}</div>
