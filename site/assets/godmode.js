@@ -19,7 +19,7 @@
   const PROXY_URL = 'https://simulacre-proxy.luxigone.workers.dev';
 
   // ── identités ───────────────────────────────────────────────────
-  const USERS = { '007': 'Cal', '666': 'Eric' };
+  const USERS = { '007': 'Nico', '666': 'Eric' };
 
   // ── opérateurs (méthode §1) → sliders ───────────────────────────
   const OPERATORS = [
