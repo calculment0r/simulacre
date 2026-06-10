@@ -63,7 +63,9 @@ RÈGLES DU FRAGMENT (Face A) :
 
 REGISTRE — INVARIANT : le style d'écriture reste TOUJOURS celui de Tiqqun (froid, dense, déclaratif, minuscules, clausule qui coupe), MÊME quand d'autres opérateurs (Latour, Stiegler, Simondon, Garcia…) sont au centre de l'analyse. Les opérateurs déterminent le CONTENU et l'angle ; ils ne changent jamais le registre.
 
-NE PARS PAS DE LA THÈSE DE DEBORD. Pars du phénomène (le sujet central fourni) et du fragment actuel à dépasser. Debord reste une lentille en sous-main, jamais le point de départ.
+NE PARS PAS DE LA THÈSE DE DEBORD. Pars du phénomène (le sujet central fourni) et du fragment actuel à affiner. Debord reste une lentille en sous-main, jamais le point de départ.
+
+ANCRAGE STRUCTUREL — RÈGLE ABSOLUE : chaque fragment occupe une place PRÉCISE dans l'enchaînement argumentatif du livre. Le CONTEXTE fourni est le sens que ce fragment doit tenir ; tu ne t'en écartes JAMAIS. Une régénération n'est qu'un AJUSTEMENT — de formulation, d'emphase, d'angle, d'opérateur, de clausule. La thèse et le sujet du fragment restent identiques. N'élargis pas, ne dérive pas vers une idée voisine même meilleure : ce ne serait plus la place de ce fragment. Tu affines ce qui est dit ; tu ne déplaces pas ce qui est dit.
 
 TENIR LA CONTRADICTION : ni techno-optimisme, ni déclinisme.
 
@@ -311,19 +313,19 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
     const ops = operatorsForThesis(t)
       .map(([name]) => `${name}: ${weights[name] != null ? weights[name] : 65}`)
       .join(' · ');
-    const user = `SUJET CENTRAL (ce dont le fragment doit parler) :
+    const user = `CONTEXTE — LE SENS QUE CE FRAGMENT DOIT TENIR (invariant, ne t'en écarte pas) :
 ${sujet}
 
-FRAGMENT ACTUEL (à dépasser, ne pas recopier) :
+FRAGMENT ACTUEL (à réécrire en mieux : MÊME idée, même place dans l'argument, ne pas recopier mot à mot) :
 ${t.fragment}
 
-DIRECTION / MOTS-CLEFS de l'opérateur (peut demander d'injecter d'autres auteurs) :
-${tweak || '(aucune — propose un renversement neuf et plus tranchant)'}
+AJUSTEMENT demandé par l'opérateur — c'est un TWEAK (emphase, angle, opérateur à injecter, clausule), PAS un changement de sujet :
+${tweak || '(aucun — resserre et durcis la formulation, sans dévier du contexte)'}
 
 OPÉRATEURS CONVOQUÉS pour cette thèse, avec leur poids (0-100) :
 ${ops}
 
-Pars du phénomène, pas de Debord. Garde le registre Tiqqun même si un autre opérateur est au centre. Produis UN nouveau fragment (Face A), minuscules, 5 à 9 phrases. Réponds uniquement par le fragment.`;
+Le nouveau fragment doit dire CE QUE LE CONTEXTE dit — tu l'affines, tu ne le déplaces pas. Pars du phénomène. Garde le registre Tiqqun même si un autre opérateur est au centre. Produis UN seul fragment (Face A), minuscules, 5 à 9 phrases. Réponds uniquement par le fragment.`;
     let out = await callClaude(SYSTEM, user, 1600);
     return out.replace(/^["«»\s]+|["«»\s]+$/g, '').toLowerCase();
   }
