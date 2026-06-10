@@ -1,0 +1,3 @@
+name = "simulacre-proxy"
+main = "worker/anthropic-proxy.js"
+compatibility_date = "2025-01-01"
