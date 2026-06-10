@@ -661,3 +661,20 @@ a { color: inherit; }
 .dash-open { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--border2); padding-bottom: 3px; }
 .dash-open:hover { color: var(--accent); border-color: var(--accent); }
 .dash-empty { font-family: var(--mono); font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+/* like (cœur) */
+.gm-like { font-family: var(--mono); font-size: 12px; background: transparent; border: 1px solid var(--border2); color: var(--muted); padding: 6px 11px; cursor: pointer; margin-left: auto; transition: all .18s; }
+.gm-like:hover { border-color: var(--red); color: var(--red); }
+.gm-like.liked { border-color: var(--red); color: var(--red); background: rgba(255,68,85,.1); }
+.gm-like-n { font-weight: 500; }
+
+/* dashboard : sections + les plus aimés */
+.dash-section { margin-bottom: 48px; }
+.dash-sec-label { font-family: var(--mono); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.liked-row { display: grid; grid-template-columns: 50px 42px 1fr auto; gap: 14px; align-items: baseline; text-decoration: none; padding: 12px 0; border-bottom: 1px solid var(--border); transition: background .15s; }
+.liked-row:hover { background: var(--bg2); }
+.liked-hearts { font-family: var(--mono); font-size: 12px; color: var(--red); white-space: nowrap; }
+.liked-n { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+.liked-txt { font-family: var(--serif); font-size: 16px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.liked-who { font-family: var(--mono); font-size: 10px; color: var(--dim); white-space: nowrap; }
+@media (max-width: 600px) { .liked-row { grid-template-columns: 50px 1fr; } .liked-n, .liked-who { display: none; } }

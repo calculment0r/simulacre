@@ -110,6 +110,32 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
     return [orig, ...entry.versions.filter((v) => v.id !== 'orig')];
   }
   function activeIdOf(n) { return (VARIANTS[n] && VARIANTS[n].activeId) || 'orig'; }
+  // likes (par prénom) au niveau du fragment
+  function likesOf(n) { return (VARIANTS[n] && VARIANTS[n].likes) || {}; }
+  function likeCount(n) { return Object.keys(likesOf(n)).length; }
+  function likedByMe(n) { return !!likesOf(n)[author()]; }
+  function likeTitle(n) {
+    const who = Object.keys(likesOf(n));
+    return who.length ? who.join(', ') + (who.length > 1 ? ' aiment' : ' aime') + ' ce fragment' : "personne n'aime encore — ♥ pour préserver";
+  }
+  async function toggleLike(gm, n) {
+    VARIANTS[n] = VARIANTS[n] || { activeId: 'orig', versions: [] };
+    VARIANTS[n].likes = VARIANTS[n].likes || {};
+    const me = author();
+    if (VARIANTS[n].likes[me]) delete VARIANTS[n].likes[me];
+    else VARIANTS[n].likes[me] = Date.now();
+    if (!Object.keys(VARIANTS[n].likes).length) delete VARIANTS[n].likes;
+    dirty.add(n);
+    updateLikeBtn(gm, n);
+    await persist(null);
+  }
+  function updateLikeBtn(gm, n) {
+    const btn = gm.querySelector('.gm-like');
+    if (!btn) return;
+    btn.classList.toggle('liked', likedByMe(n));
+    const nEl = btn.querySelector('.gm-like-n'); if (nEl) nEl.textContent = likeCount(n);
+    btn.title = likeTitle(n);
+  }
   // texte affiché dans le fil général (la version validée), ou null si l'original
   function activeFragment(n) {
     const id = activeIdOf(n);
@@ -118,14 +144,26 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
     return v ? v.fragment : null;
   }
 
-  // ── chargement des variantes partagées (data/variants.json) ─────
+  // ── chargement des variantes partagées ──────────────────────────
+  // priorité au Worker (lecture immédiate depuis GitHub) ; repli sur le fichier Pages
   async function loadVariants() {
-    try {
-      const r = await fetch('data/variants.json?_=' + Date.now(), { cache: 'no-store' });
-      if (r.ok) VARIANTS = await r.json();
-    } catch (e) { /* fichier absent au début : on part de {} */ }
+    let data = null;
+    if (PROXY_URL) data = await fetchRemoteVariants();
+    if (!data) {
+      try { const r = await fetch('data/variants.json?_=' + Date.now(), { cache: 'no-store' }); if (r.ok) data = await r.json(); } catch (e) {}
+    }
+    VARIANTS = data || {};
     loaded = true;
     if (window.__simRoute) window.__simRoute();
+  }
+
+  async function fetchRemoteVariants() {
+    if (!PROXY_URL) return null;
+    try {
+      const r = await fetch(PROXY_URL.replace(/\/$/, '') + '/variants?_=' + Date.now(), { cache: 'no-store' });
+      if (r.ok) return await r.json();
+    } catch (e) {}
+    return null;
   }
 
   // ── chargement des méta-restitutions pré-générées ───────────────
@@ -137,7 +175,9 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
     if (window.__simRoute) window.__simRoute();
   }
 
-  // ── persistance : commit GitHub si token, sinon localStorage ────
+  // ── persistance ─────────────────────────────────────────────────
+  // fragments modifiés dans cette session → on fusionne sans écraser ceux des autres
+  const dirty = new Set();
   function saveLocal() { localStorage.setItem('sim_variants_local', JSON.stringify(VARIANTS)); }
   function loadLocalInto() {
     try { Object.assign(VARIANTS, JSON.parse(localStorage.getItem('sim_variants_local') || '{}')); } catch (e) {}
@@ -145,29 +185,41 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
 
   async function persist(noteEl) {
     saveLocal();
-    const token = LS.ghToken;
-    if (!token) {
-      if (noteEl) noteEl.textContent = 'enregistré en local (aucun token GitHub — non partagé). colle un token en réglages pour partager.';
+    // partage via le Worker : token GitHub caché côté serveur, personne n'entre rien
+    if (PROXY_URL) {
+      try {
+        if (noteEl) noteEl.textContent = 'partage…';
+        const remote = await fetchRemoteVariants();
+        if (remote === null) { if (noteEl) noteEl.textContent = 'lecture GitHub impossible — gardé en local'; return; }
+        const merged = Object.assign({}, remote);
+        dirty.forEach((n) => { merged[n] = VARIANTS[n]; }); // mes fragments l'emportent, le reste vient des autres
+        VARIANTS = merged;
+        const res = await fetch(PROXY_URL.replace(/\/$/, '') + '/variants', {
+          method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(VARIANTS, null, 1),
+        });
+        if (!res.ok) throw new Error('worker ' + res.status + ' ' + (await res.text()).slice(0, 120));
+        dirty.clear();
+        if (noteEl) noteEl.textContent = 'partagé sur GitHub ✓ (visible par tous)';
+      } catch (e) {
+        if (noteEl) noteEl.textContent = 'échec partage : ' + e.message + ' — gardé en local.';
+      }
       return;
     }
+    // repli : commit direct avec un token perso (si pas de proxy configuré)
+    const token = LS.ghToken;
+    if (!token) { if (noteEl) noteEl.textContent = 'enregistré en local (ni proxy ni token).'; return; }
     try {
       if (noteEl) noteEl.textContent = 'envoi vers GitHub…';
-      // récupère le sha courant
       const api = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/site/${GH.path}`;
       const head = { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' };
       const cur = await fetch(api + '?ref=' + GH.branch, { headers: head });
-      if (cur.ok) { const j = await cur.json(); varsSha = j.sha; }
-      const body = {
-        message: `variantes: maj par ${author() || '???'}`,
-        content: b64(JSON.stringify(VARIANTS, null, 2)),
-        branch: GH.branch,
-      };
+      if (cur.ok) { const jj = await cur.json(); varsSha = jj.sha; }
+      const body = { message: `variantes: maj par ${author() || '???'}`, content: b64(JSON.stringify(VARIANTS, null, 2)), branch: GH.branch };
       if (varsSha) body.sha = varsSha;
       const put = await fetch(api, { method: 'PUT', headers: head, body: JSON.stringify(body) });
       if (!put.ok) throw new Error('GitHub ' + put.status + ' ' + (await put.text()).slice(0, 140));
-      const pj = await put.json();
-      varsSha = pj.content && pj.content.sha;
-      if (noteEl) noteEl.textContent = 'partagé sur GitHub ✓ (redéploiement ~30 s)';
+      const pj = await put.json(); varsSha = pj.content && pj.content.sha;
+      if (noteEl) noteEl.textContent = 'partagé sur GitHub ✓';
     } catch (e) {
       if (noteEl) noteEl.textContent = 'échec GitHub : ' + e.message + ' — gardé en local.';
     }
@@ -286,6 +338,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
         <button class="gm-acc-btn" data-panel="ctx">▸ contexte</button>
         <button class="gm-acc-btn" data-panel="tweak">▸ tweak</button>
         <button class="gm-acc-btn" data-panel="edit">▸ éditer</button>
+        <button class="gm-like${likedByMe(n) ? ' liked' : ''}" title="${esc(likeTitle(n))}">♥ <span class="gm-like-n">${likeCount(n)}</span></button>
         ${vs.length > 1 ? `<span class="gm-count">${vs.length} versions</span>` : ''}
       </div>
 
@@ -398,6 +451,9 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     // régénération
     const regenBtn = gm.querySelector('.gm-regen');
     if (regenBtn) regenBtn.addEventListener('click', () => doRegen(gm, n));
+    // like (cœur)
+    const likeBtn = gm.querySelector('.gm-like');
+    if (likeBtn) likeBtn.addEventListener('click', () => toggleLike(gm, n));
     // carrousel
     wireCarousel(gm, n);
   }
@@ -442,6 +498,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     if (!v || v.author !== author()) return; // pas les versions des autres
     entry.versions = entry.versions.filter((x) => x.id !== id);
     if (entry.activeId === id) entry.activeId = 'orig'; // version active supprimée → retour à l'original
+    dirty.add(n);
     const gm = document.querySelector('.gm[data-n="' + n + '"]');
     if (gm) {
       const en = gm.closest('.entry');
@@ -485,6 +542,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
       if (!fragment) throw new Error('réponse vide');
       VARIANTS[n] = VARIANTS[n] || { activeId: 'orig', versions: [] };
       VARIANTS[n].versions.push({ id: rid(), fragment, author: author(), ts: Date.now(), tweak, weights, model: MODEL });
+      dirty.add(n);
       status.textContent = 'nouvelle version créée ✓';
       refreshCarousel(gm, n, true); // maj sur place, on reste où on est
       await persist(status);
@@ -503,6 +561,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     const id = rid();
     VARIANTS[n].versions.push({ id, fragment: txt, author: author(), ts: Date.now(), origin: 'manual' });
     VARIANTS[n].activeId = id; // l'édition manuelle passe directement dans le fil
+    dirty.add(n);
     const entry = gm.closest('.entry');
     const ft = entry && entry.querySelector('.fragment-text');
     if (ft) ft.innerHTML = renderFrag(txt);
@@ -514,6 +573,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   async function validate(n, id) {
     VARIANTS[n] = VARIANTS[n] || { activeId: 'orig', versions: [] };
     VARIANTS[n].activeId = id;
+    dirty.add(n);
     // maj sur place : le texte « dans le fil » + le carrousel, sans recharger ni scroller
     const gm = document.querySelector('.gm[data-n="' + n + '"]');
     if (gm) {
@@ -560,12 +620,29 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
         <a class="dash-open" href="#f-${t.n}">→ ouvrir &amp; éditer</a>
       </article>`;
     }).join('');
+    const liked = (window.THESES || []).map((t) => ({ t, c: likeCount(t.n), who: Object.keys(likesOf(t.n)) }))
+      .filter((x) => x.c > 0).sort((a, b) => b.c - a.c).slice(0, 30);
+    const likedHTML = liked.length
+      ? liked.map((x) => `<a class="liked-row" href="#f-${x.t.n}">
+          <span class="liked-hearts">♥ ${x.c}</span>
+          <span class="liked-n">${fragNo(x.t.n)}</span>
+          <span class="liked-txt">${esc(currentText(x.t.n).slice(0, 90))}…</span>
+          <span class="liked-who">${esc(x.who.join(' · '))}</span>
+        </a>`).join('')
+      : '<p class="dash-empty">aucun fragment aimé pour l\'instant — clique le ♥ sur un fragment à préserver.</p>';
     contentEl.innerHTML = `<header class="ch-head">
         <div class="label">god mode · ${esc(me)}</div>
         <h1>mon atelier</h1>
-        <div class="sub">les fragments que tu as modifiés — ${mine.length} au total. clique un fragment pour l'ouvrir dans son chapitre.</div>
+        <div class="sub">ce que l'équipe préfère, et ce que tu as modifié.</div>
       </header>
-      ${mine.length ? rows : '<p class="dash-empty">tu n\'as encore modifié aucun fragment. ouvre-en un, régénère ou édite, valide — il apparaîtra ici.</p>'}`;
+      <section class="dash-section">
+        <div class="dash-sec-label">♥ les plus aimés</div>
+        ${likedHTML}
+      </section>
+      <section class="dash-section">
+        <div class="dash-sec-label">mes fragments — ${mine.length}</div>
+        ${mine.length ? rows : '<p class="dash-empty">tu n\'as encore modifié aucun fragment. ouvre-en un, régénère ou édite, valide — il apparaîtra ici.</p>'}
+      </section>`;
   }
 
   // ════════════════ SIDEBAR : bouton + réglages ═══════════════════
@@ -619,22 +696,21 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
 
   function openSettings() {
     const viaProxy = !!PROXY_URL;
-    const keyField = viaProxy
-      ? `<p class="gm-modal-p" style="color:var(--accent)">✓ clé API gérée par le proxy Cloudflare — rien à entrer pour régénérer.</p>`
-      : `<label class="gm-flab">clé API Anthropic <small>(sk-ant-…)</small></label>
-         <input id="gmKey" type="password" class="gm-input" placeholder="sk-ant-..." value="${esc(LS.apiKey)}" autocomplete="off">`;
+    const body = viaProxy
+      ? `<p class="gm-modal-p" style="color:var(--accent)">✓ clé API et partage des variantes gérés par le proxy Cloudflare.<br><span style="color:var(--muted)">rien à entrer — tes variantes vont automatiquement sur GitHub, visibles par tous les contributeurs.</span></p>`
+      : `<p class="gm-modal-p">stockés uniquement dans ce navigateur.</p>
+         <label class="gm-flab">clé API Anthropic <small>(sk-ant-…)</small></label>
+         <input id="gmKey" type="password" class="gm-input" placeholder="sk-ant-..." value="${esc(LS.apiKey)}" autocomplete="off">
+         <label class="gm-flab">token GitHub <small>(fine-grained, Contents: read+write sur ${GH.owner}/${GH.repo})</small></label>
+         <input id="gmTok" type="password" class="gm-input" placeholder="github_pat_..." value="${esc(LS.ghToken)}" autocomplete="off">`;
     const m = modal(`
       <div class="gm-lab">réglages god mode — ${author()}</div>
-      <p class="gm-modal-p">stockés uniquement dans ce navigateur. ${viaProxy ? 'le token GitHub sert à partager les variantes avec les autres.' : 'la clé Anthropic sert à régénérer ; le token GitHub à partager les variantes.'}</p>
-      ${keyField}
-      <label class="gm-flab">token GitHub <small>(fine-grained, Contents: read+write sur ${GH.owner}/${GH.repo})</small></label>
-      <input id="gmTok" type="password" class="gm-input" placeholder="github_pat_..." value="${esc(LS.ghToken)}" autocomplete="off">
-      <div class="gm-modal-actions"><button id="gmSave" class="gm-primary">enregistrer</button><span id="gmSaved" class="gm-ok"></span></div>`);
+      ${body}
+      <div class="gm-modal-actions"><button id="gmSave" class="gm-primary">${viaProxy ? 'ok' : 'enregistrer'}</button><span id="gmSaved" class="gm-ok"></span></div>`);
     m.el.querySelector('#gmSave').onclick = () => {
-      const k = m.el.querySelector('#gmKey');
-      if (k) LS.apiKey = k.value.trim();
-      LS.ghToken = m.el.querySelector('#gmTok').value.trim();
-      m.el.querySelector('#gmSaved').textContent = 'enregistré ✓';
+      const k = m.el.querySelector('#gmKey'); if (k) LS.apiKey = k.value.trim();
+      const tk = m.el.querySelector('#gmTok'); if (tk) LS.ghToken = tk.value.trim();
+      if (viaProxy) m.close(); else m.el.querySelector('#gmSaved').textContent = 'enregistré ✓';
     };
   }
 
