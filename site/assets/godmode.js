@@ -659,7 +659,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
       : '<p class="dash-empty">aucun fragment aimé pour l\'instant — clique le ♥ sur un fragment à préserver.</p>';
     contentEl.innerHTML = `<header class="ch-head">
         <div class="label">god mode · ${esc(me)}</div>
-        <h1>mon atelier</h1>
+        <h1>Dashboard</h1>
         <div class="sub">ce que l'équipe préfère, et ce que tu as modifié.</div>
       </header>
       <section class="dash-section">
@@ -680,13 +680,22 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     const ctl = document.createElement('div');
     ctl.className = 'gm-side';
     ctl.innerHTML = on
-      ? `<div class="gm-side-on">● god mode — <a class="gm-name" href="#mine" title="mon atelier"><b>${author()}</b></a> ${PROXY_URL ? '' : '<button id="gmSettings">réglages</button> '}<button id="gmLock">quitter</button></div>
-         <a class="gm-dash-link" href="#mine">⌂ mon atelier (${myFragments().length})</a>`
+      ? `<div class="gm-side-on">● <b>god mode</b> — ${esc(author())}</div>
+         <div class="gm-side-btns">
+           <button id="gmDash">Dashboard</button>
+           ${PROXY_URL ? '' : '<button id="gmSettings">réglages</button>'}
+           <button id="gmLock">quitter</button>
+         </div>`
       : `<button id="gmEnter">⌁ god mode</button>`;
     foot.appendChild(ctl);
+    document.body.classList.toggle('god-on', on); // cadre vert autour de la page
 
     if (on) {
-      sidebarEl.querySelector('#gmLock').onclick = () => { LS.code = ''; location.hash = ''; if (window.__simRoute) window.__simRoute(); };
+      sidebarEl.querySelector('#gmLock').onclick = () => {
+        LS.code = ''; document.body.classList.remove('god-on'); location.hash = '';
+        if (window.__simRoute) window.__simRoute();
+      };
+      sidebarEl.querySelector('#gmDash').onclick = () => { location.hash = '#mine'; };
       const st = sidebarEl.querySelector('#gmSettings');
       if (st) st.onclick = openSettings;
     } else {
