@@ -653,14 +653,15 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     const ctl = document.createElement('div');
     ctl.className = 'gm-side';
     ctl.innerHTML = on
-      ? `<div class="gm-side-on">● god mode — <a class="gm-name" href="#mine" title="mon atelier"><b>${author()}</b></a> <button id="gmSettings">réglages</button> <button id="gmLock">quitter</button></div>
+      ? `<div class="gm-side-on">● god mode — <a class="gm-name" href="#mine" title="mon atelier"><b>${author()}</b></a> ${PROXY_URL ? '' : '<button id="gmSettings">réglages</button> '}<button id="gmLock">quitter</button></div>
          <a class="gm-dash-link" href="#mine">⌂ mon atelier (${myFragments().length})</a>`
       : `<button id="gmEnter">⌁ god mode</button>`;
     foot.appendChild(ctl);
 
     if (on) {
       sidebarEl.querySelector('#gmLock').onclick = () => { LS.code = ''; location.hash = ''; if (window.__simRoute) window.__simRoute(); };
-      sidebarEl.querySelector('#gmSettings').onclick = openSettings;
+      const st = sidebarEl.querySelector('#gmSettings');
+      if (st) st.onclick = openSettings;
     } else {
       sidebarEl.querySelector('#gmEnter').onclick = openUnlock;
     }
