@@ -13,6 +13,10 @@
   // ── config repo (pour le commit des variantes) ──────────────────
   const GH = { owner: 'calculment0r', repo: 'simulacre', path: 'data/variants.json', branch: 'main' };
   const MODEL = 'claude-opus-4-8';
+  // Proxy facultatif (Cloudflare Worker) qui détient la clé côté serveur.
+  // Vide → appel direct navigateur avec la clé collée en réglages.
+  // Renseigné → Eric n'a aucune clé à entrer (clé cachée dans le proxy).
+  const PROXY_URL = '';
 
   // ── identités ───────────────────────────────────────────────────
   const USERS = { '007': 'Cal', '666': 'Eric' };
@@ -57,6 +61,10 @@ RÈGLES DU FRAGMENT (Face A) :
 7. clausule : finir sur un retournement froid, une phrase courte qui coupe.
 8. longueur : 5 à 9 phrases.
 
+REGISTRE — INVARIANT : le style d'écriture reste TOUJOURS celui de Tiqqun (froid, dense, déclaratif, minuscules, clausule qui coupe), MÊME quand d'autres opérateurs (Latour, Stiegler, Simondon, Garcia…) sont au centre de l'analyse. Les opérateurs déterminent le CONTENU et l'angle ; ils ne changent jamais le registre.
+
+NE PARS PAS DE LA THÈSE DE DEBORD. Pars du phénomène (le sujet central fourni) et du fragment actuel à dépasser. Debord reste une lentille en sous-main, jamais le point de départ.
+
 TENIR LA CONTRADICTION : ni techno-optimisme, ni déclinisme.
 
 SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre, sans préambule, sans guillemets, sans aucun raisonnement ni commentaire.`;
@@ -78,7 +86,8 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
   const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const md = (s) => esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>');
   const pad3 = (n) => String(n).padStart(2, '0');
-  const rid = () => 'v_' + Math.abs(Date.now() % 1e9).toString(36) + '_' + (VARIANTS.__c = (VARIANTS.__c || 0) + 1);
+  let ridCounter = 0;
+  const rid = () => 'v_' + Math.abs(Date.now() % 1e9).toString(36) + '_' + ++ridCounter;
   const thesisOf = (n) => (window.THESES || []).find((t) => t.n === n);
 
   function isOn() { return !!USERS[LS.code]; }
@@ -148,55 +157,89 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
   }
   function b64(s) { return btoa(unescape(encodeURIComponent(s))); }
 
-  // ── appel Claude Opus 4.8 (depuis le navigateur) ────────────────
-  async function regenerate(n, tweak, weights) {
-    const key = LS.apiKey;
-    if (!key) throw new Error('clé API Anthropic manquante (réglages god mode)');
-    const t = thesisOf(n);
-    const ops = OPERATORS
-      .map(([name]) => `${name}: ${weights[name] != null ? weights[name] : 50}`)
-      .join(' · ');
-    const user = `THÈSE DEBORD (provocation de départ) :
-${t.debord_these}
-
-SUJET CENTRAL (ce dont le fragment doit parler) :
-${t.sens_pour_debord}
-
-FRAGMENT ACTUEL (à renverser autrement, ne pas recopier) :
-${t.fragment}
-
-DIRECTION / MOTS-CLEFS injectés par l'opérateur :
-${tweak || '(aucune — propose un renversement neuf et plus tranchant)'}
-
-PONDÉRATION DES OPÉRATEURS à faire jouer en sous-main (0-100) :
-${ops}
-
-Produis UN nouveau fragment (Face A), minuscules, 5 à 9 phrases, selon la méthode. Réponds uniquement par le fragment.`;
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 1600,
-        system: SYSTEM,
-        messages: [{ role: 'user', content: user }],
-      }),
+  // ── opérateurs convoqués par une thèse (sliders) ────────────────
+  const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  function operatorsForThesis(t) {
+    const auts = (t.auteurs || []).map(norm);
+    const hit = new Set();
+    OPERATORS.forEach(([name]) => {
+      const nm = norm(name);
+      if (auts.some((a) => a.includes(nm))) hit.add(name);
     });
-    if (!res.ok) {
-      const txt = await res.text();
-      throw new Error('API ' + res.status + ' : ' + txt.slice(0, 200));
+    // Comité Invisible / CI → pôle Tiqqun
+    if (auts.some((a) => /\bci\b/.test(a) || a.includes('comite invisible'))) hit.add('Tiqqun');
+    let list = OPERATORS.filter(([n]) => hit.has(n));
+    if (!list.length) list = OPERATORS.filter(([n]) => ['Tiqqun', 'Meillassoux'].includes(n));
+    return list;
+  }
+  function metaFallback(t) {
+    const s = (t.sens_pour_debord || '').trim();
+    const m = s.match(/^(.+?[.!?])(\s|$)/);
+    return (m ? m[1] : s).slice(0, 220);
+  }
+
+  // ── appel Claude Opus 4.8 (proxy si configuré, sinon direct) ────
+  async function callClaude(system, userMsg, maxTokens) {
+    const payload = JSON.stringify({ model: MODEL, max_tokens: maxTokens, system, messages: [{ role: 'user', content: userMsg }] });
+    let res;
+    if (PROXY_URL) {
+      res = await fetch(PROXY_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: payload });
+    } else {
+      const key = LS.apiKey;
+      if (!key) throw new Error('clé API manquante (réglages) — ou configure le proxy');
+      res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: payload,
+      });
     }
+    if (!res.ok) throw new Error('API ' + res.status + ' : ' + (await res.text()).slice(0, 200));
     const data = await res.json();
     const block = (data.content || []).find((b) => b.type === 'text');
-    let out = (block ? block.text : '').trim();
-    out = out.replace(/^["«»\s]+|["«»\s]+$/g, '').toLowerCase();
-    return out;
+    return (block ? block.text : '').trim();
+  }
+
+  // régénère un fragment (Face A) — ne part PAS de Debord, garde le style Tiqqun
+  async function regenerate(n, tweak, weights) {
+    const t = thesisOf(n);
+    const sujet = (VARIANTS[n] && VARIANTS[n].meta) || t.sens_pour_debord;
+    const ops = operatorsForThesis(t)
+      .map(([name]) => `${name}: ${weights[name] != null ? weights[name] : 65}`)
+      .join(' · ');
+    const user = `SUJET CENTRAL (ce dont le fragment doit parler) :
+${sujet}
+
+FRAGMENT ACTUEL (à dépasser, ne pas recopier) :
+${t.fragment}
+
+DIRECTION / MOTS-CLEFS de l'opérateur (peut demander d'injecter d'autres auteurs) :
+${tweak || '(aucune — propose un renversement neuf et plus tranchant)'}
+
+OPÉRATEURS CONVOQUÉS pour cette thèse, avec leur poids (0-100) :
+${ops}
+
+Pars du phénomène, pas de Debord. Garde le registre Tiqqun même si un autre opérateur est au centre. Produis UN nouveau fragment (Face A), minuscules, 5 à 9 phrases. Réponds uniquement par le fragment.`;
+    let out = await callClaude(SYSTEM, user, 1600);
+    return out.replace(/^["«»\s]+|["«»\s]+$/g, '').toLowerCase();
+  }
+
+  // génère la phrase de méta-restitution (contexte) — style neutre, PAS Tiqqun
+  const META_SYSTEM = `Tu restitues en UNE seule phrase simple et claire ce dont parle l'analyse d'une thèse du livre « La Société du Simulacre » selon ses auteurs de référence. Style neutre, informatif, synthétique : PAS d'aphorisme, PAS le style Tiqqun, pas de minuscules obligatoires, pas de jargon académique. La phrase dit simplement de quoi ça parle, pour orienter le lecteur. Réponds uniquement par cette phrase.`;
+  async function generateMeta(n) {
+    const t = thesisOf(n);
+    const user = `Sens de la thèse : ${t.sens_pour_debord}
+
+Ce que les auteurs en disent :
+${(t.pourquoi || []).map((p) => '- ' + p).join('\n')}
+
+Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
+    const s = await callClaude(META_SYSTEM, user, 300);
+    return s.replace(/^["«»\s]+|["«»\s]+$/g, '').trim();
   }
 
   // ════════════════ RENDU DES CONTRÔLES (par fragment) ════════════
@@ -204,13 +247,15 @@ Produis UN nouveau fragment (Face A), minuscules, 5 à 9 phrases, selon la méth
     const n = t.n;
     const vs = versionsOf(n);
     const activeId = activeIdOf(n);
-    const ops = OPERATORS.map(([name, desc]) => {
+    const operators = operatorsForThesis(t);
+    const ops = operators.map(([name, desc]) => {
       const w = defaultWeight(t, name);
       return `<div class="gm-slider">
         <label title="${esc(desc)}">${esc(name)} <span class="gm-val" data-op="${esc(name)}">${w}</span></label>
         <input type="range" min="0" max="100" value="${w}" data-op="${esc(name)}">
       </div>`;
     }).join('');
+    const hasMeta = !!(VARIANTS[n] && VARIANTS[n].meta);
 
     return `<div class="gm" data-n="${n}">
       <div class="gm-bar">
@@ -220,17 +265,18 @@ Produis UN nouveau fragment (Face A), minuscules, 5 à 9 phrases, selon la méth
       </div>
 
       <div class="gm-panel" data-panel="ctx" hidden>
-        <div class="gm-ctx-block"><div class="gm-lab">sujet central</div><p>${md(t.sens_pour_debord)}</p></div>
-        <div class="gm-ctx-block"><div class="gm-lab">thèse Debord</div><p class="gm-italic">${md(t.debord_these)}</p></div>
-        <div class="gm-ctx-block"><div class="gm-lab">analyse — opérateurs</div>
-          <ul>${(t.pourquoi || []).map((p) => `<li>${md(p)}</li>`).join('')}</ul>
+        <div class="gm-lab">méta-restitution — de quoi parle ce fragment</div>
+        <p class="gm-meta${hasMeta ? '' : ' gm-meta-fallback'}">${hasMeta ? esc(VARIANTS[n].meta) : esc(metaFallback(t))}</p>
+        <div class="gm-actions">
+          <button class="gm-meta-gen">⟳ ${hasMeta ? 'régénérer' : 'générer'} le contexte</button>
+          <span class="gm-meta-status"></span>
         </div>
       </div>
 
       <div class="gm-panel" data-panel="tweak" hidden>
-        <div class="gm-lab">direction / mots-clefs</div>
-        <textarea class="gm-tweak" rows="3" placeholder="ex. accentuer l'axe corrélationniste ; insister sur le cutoff ; clausule plus froide…"></textarea>
-        <div class="gm-lab" style="margin-top:14px">poids des opérateurs</div>
+        <div class="gm-lab">direction / mots-clefs <small style="text-transform:none;letter-spacing:0;color:var(--dim)">— peut injecter un autre auteur</small></div>
+        <textarea class="gm-tweak" rows="3" placeholder="ex. accentuer le cutoff ; clausule plus froide ; injecter Latour sur l'infrastructure…"></textarea>
+        <div class="gm-lab" style="margin-top:14px">poids des opérateurs convoqués</div>
         <div class="gm-sliders">${ops}</div>
         <div class="gm-actions">
           <button class="gm-regen">⟳ régénérer avec Opus 4.8</button>
@@ -243,12 +289,9 @@ Produis UN nouveau fragment (Face A), minuscules, 5 à 9 phrases, selon la méth
   }
 
   function defaultWeight(t, name) {
-    // pré-règle les sliders selon les auteurs déjà convoqués par la thèse
-    const set = (t.auteurs || []).map((a) => a.toLowerCase());
+    // tous les sliders affichés sont déjà des opérateurs convoqués
     const nm = name.toLowerCase();
-    if (set.some((a) => a.includes(nm) || nm.includes(a.split(' ')[0]))) return 75;
-    if (['debord', 'tiqqun', 'meillassoux'].includes(nm)) return 55; // axes maîtres
-    return 25;
+    return ['debord', 'tiqqun', 'meillassoux'].includes(nm) ? 70 : 60; // axes maîtres un peu plus hauts
   }
 
   function carouselHTML(n) {
@@ -298,11 +341,30 @@ Produis UN nouveau fragment (Face A), minuscules, 5 à 9 phrases, selon la méth
     // textarea mobile : recentre l'entrée quand le clavier monte
     const ta = gm.querySelector('.gm-tweak');
     if (ta) ta.addEventListener('focus', () => setTimeout(() => ta.scrollIntoView({ block: 'center', behavior: 'smooth' }), 250));
+    // génération du contexte (méta-restitution)
+    const metaBtn = gm.querySelector('.gm-meta-gen');
+    if (metaBtn) metaBtn.addEventListener('click', () => doMeta(gm, n));
     // régénération
     const regenBtn = gm.querySelector('.gm-regen');
     if (regenBtn) regenBtn.addEventListener('click', () => doRegen(gm, n));
     // carrousel
     wireCarousel(gm, n);
+  }
+
+  async function doMeta(gm, n) {
+    const status = gm.querySelector('.gm-meta-status');
+    status.textContent = '… Opus 4.8';
+    try {
+      const meta = await generateMeta(n);
+      if (!meta) throw new Error('réponse vide');
+      VARIANTS[n] = VARIANTS[n] || { activeId: 'orig', versions: [] };
+      VARIANTS[n].meta = meta;
+      status.textContent = 'contexte généré ✓';
+      await persist(status);
+      if (window.__simRoute) window.__simRoute();
+    } catch (e) {
+      status.textContent = '✗ ' + e.message;
+    }
   }
 
   function wireCarousel(gm, n) {
