@@ -12,23 +12,23 @@ const OUT = join(ROOT, 'site', 'data');
 // ── Mapping chapitres (titres autonomes, cf. CLAUDE.md §9) ──────────────
 const CHAPTERS = [
   { ch: 1, titre: 'Exonoèse', cat: 'concept', min: 1, max: 34,
-    logline: "La pensée s'exerce désormais hors de qui se croyait son sujet. Ce qu'on nomme gain de temps est le nom propre du transfert." },
+    logline: "l'exonoèse est le moment où la pensée s'exerce hors de qui la croyait sienne. elle ne se donne jamais pour une perte mais pour un soulagement — et c'est à cette condition, l'affect du confort, qu'elle devient irréversible." },
   { ch: 2, titre: 'Narcisse Technē', cat: 'économie', min: 35, max: 53,
-    logline: "La faculté s'est faite marchandise, et la marchandise, miroir. On loue à la demande ce qu'on savait faire, et l'on s'éprend de son reflet automatisé." },
+    logline: "la faculté s'est faite marchandise d'infrastructure : on loue à la demande ce qu'on savait produire. le fétiche n'est pas le modèle mais le reflet — l'image automatisée de notre propre puissance, qu'on loue désormais à qui la détient." },
   { ch: 3, titre: 'Fragmentations calibrées', cat: 'fausse unité', min: 54, max: 72,
-    logline: "Une seule intelligence pour tous : l'unité est une façade que la propriété calibre. La démocratisation est le nom poli de la dépendance." },
+    logline: "l'intelligence commune est une fausse unité : tous reliés au même cœur, aucun ne le possède. la division n'a pas disparu, elle s'est calibrée — l'accès au grand nombre, les poids à quelques-uns —, et ce partage inégal s'énonce comme démocratisation." },
   { ch: 4, titre: 'Unititudes', cat: 'sujet', min: 73, max: 124,
-    logline: "Le seul sujet qui pourrait le nier est partout et nulle part : dispersé, mis en concurrence, seul devant son écran. Tout se joue à ce qu'il cesse d'être utilisateur." },
+    logline: "le sujet qui pourrait nier le Simulacre existe en droit, pas en fait : la masse de ceux dont le travail cognitif l'alimente, mais dispersée, mise en concurrence, seule devant l'interface. une condition n'est pas un acteur — et rien, pour l'instant, ne fait d'une multitude d'isolés autre chose qu'une somme d'usagers." },
   { ch: 5, titre: 'Chronofossile', cat: 'histoire', min: 125, max: 146,
-    logline: "Le modèle est un passé gelé qui parle au présent. L'interroger, c'est interroger un mort très bien informé sur la veille de sa mort." },
+    logline: "le modèle n'a pas de présent : passé gelé à une date, il parle d'un temps qu'il n'a pas connu. l'interroger sur le monde, c'est questionner un mort très bien informé sur la veille de sa mort, et prendre sa réponse pour une nouvelle." },
   { ch: 6, titre: 'Still Loading', cat: 'quotidien', min: 147, max: 164,
-    logline: "Le temps gagné est un temps vidé. On guette la version suivante comme jadis les saisons, dans un présent qui se relance et n'arrive jamais." },
+    logline: "le temps que la génération rend n'est pas rendu, il est vidé de la difficulté qui le remplissait. on vit dans l'attente de la version suivante — un présent qui se relance sans rien accumuler, la mise à jour permanente érigée en forme du temps." },
   { ch: 7, titre: 'Atmotechnie', cat: 'infrastructure', min: 165, max: 179,
-    logline: "Le nuage n'a rien d'aérien : un bunker climatisé fabrique l'air qu'on respire en pensant. Rien de plus matériel que ce qu'on dit immatériel." },
+    logline: "le nuage est une atmotechnie : non de l'air, mais une atmosphère fabriquée — bunkers climatisés, fleuves détournés, silicium. on pense désormais dans un milieu produit par quelques-uns, et c'est ce milieu, non l'outil, qui décide de ce qui s'y peut penser." },
   { ch: 8, titre: 'Inflammation acéphale', cat: 'culture', min: 180, max: 211,
-    logline: "La culture sans tête prolifère : style de personne, œuvre sans main, négation devenue générable. Le système fournit déjà la forme de sa propre critique." },
+    logline: "la culture sans tête prolifère comme un symptôme : style de personne, œuvre sans main, originalité en série. et la négation elle-même est devenue générable — le système fabrique sa propre critique avant qu'on l'ait formulée, de sorte qu'il ne reste rien à récupérer : tout est déjà produit." },
   { ch: 9, titre: 'Hyperstition / Hyperstructure', cat: 'idéologie totale', min: 212, max: 221,
-    logline: "L'idéologie n'est plus crue, elle est exécutée. Ce qui tourne tient lieu de preuve. On ne réfute pas une fiction qui se rend vraie en se bâtissant : on l'éteint." },
+    logline: "une hyperstition est une fiction qui se vérifie en se déployant. le Simulacre est l'idéologie qui n'a plus à être crue : elle a appris à fonctionner, et son fonctionnement tient lieu de croyance — son extinction, de seule réfutation possible." },
 ];
 const chapForN = (n) => CHAPTERS.find((c) => n >= c.min && n <= c.max);
 

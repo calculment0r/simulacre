@@ -102,6 +102,7 @@
       t.chapitre
     )} ${esc(meta ? meta.titre : '')}</div>
       <div class="fragment-text">${paras(text)}</div>
+      ${gm && gm.likeHTML ? gm.likeHTML(t.n) : ''}
       ${controls}
     </article>`;
   }
@@ -135,7 +136,10 @@
     </nav>`;
 
     $('#content').innerHTML = (ch === 1 ? masthead() : '') + head + entries + foot;
-    if (window.GodMode) window.GodMode.onRenderChapter($('#content'));
+    if (window.GodMode) {
+      window.GodMode.onRenderChapter($('#content'));
+      if (window.GodMode.wireLikes) window.GodMode.wireLikes($('#content')); // cœur sur le fil, tous modes
+    }
   }
 
   // ── orchestration ───────────────────────────────────────────────

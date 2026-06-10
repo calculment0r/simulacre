@@ -6,7 +6,7 @@ const PROXY = 'https://simulacre-proxy.luxigone.workers.dev';
 const MODEL = 'claude-opus-4-8';
 const CONC = 6;
 
-const META_SYSTEM = `Tu restitues en UNE seule phrase simple et claire ce dont parle l'analyse d'une thèse du livre « La Société du Simulacre » selon ses auteurs de référence. Style neutre, informatif, synthétique : PAS d'aphorisme, PAS le style Tiqqun, pas de minuscules obligatoires, pas de jargon académique. La phrase dit simplement de quoi ça parle, pour orienter le lecteur. Réponds uniquement par cette phrase.`;
+const META_SYSTEM = `Tu écris une courte note de contexte pour un fragment du livre « La Société du Simulacre » (une critique de l'IA générative). En UNE à DEUX phrases — claires, directes, synthétiques, tranchantes — dis ce que ce fragment AFFIRME : de quoi il parle, ce qu'il pointe, dans l'univers du Simulacre (l'IA générative, les modèles, la pensée externalisée, l'infrastructure du calcul, le pouvoir). NE mentionne JAMAIS Debord ni « le spectacle » : on reste entièrement dans notre monde, celui du Simulacre. Pas d'aphorisme, pas de jargon : une explicitation nette qui oriente le lecteur sur le sens du fragment. Réponds uniquement par cette ou ces deux phrases.`;
 
 const theses = JSON.parse(readFileSync('site/data/theses.json', 'utf8'));
 const out = {};
@@ -14,12 +14,13 @@ const errs = [];
 let idx = 0, done = 0;
 
 async function gen(t) {
-  const user = `Sens de la thèse : ${t.sens_pour_debord}
+  const user = `FRAGMENT :
+${t.fragment}
 
-Ce que les auteurs en disent :
+CE QUE LES OPÉRATEURS Y LISENT :
 ${(t.pourquoi || []).map((p) => '- ' + p).join('\n')}
 
-Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
+Donne la note de contexte (1 à 2 phrases, directe et synthétique, dans l'univers du Simulacre, SANS jamais citer Debord ni le spectacle).`;
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const r = await fetch(PROXY, {

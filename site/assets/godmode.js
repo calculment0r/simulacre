@@ -118,23 +118,54 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
     const who = Object.keys(likesOf(n));
     return who.length ? who.join(', ') + (who.length > 1 ? ' aiment' : ' aime') + ' ce fragment' : "personne n'aime encore — ♥ pour préserver";
   }
-  async function toggleLike(gm, n) {
-    VARIANTS[n] = VARIANTS[n] || { activeId: 'orig', versions: [] };
-    VARIANTS[n].likes = VARIANTS[n].likes || {};
-    const me = author();
-    if (VARIANTS[n].likes[me]) delete VARIANTS[n].likes[me];
-    else VARIANTS[n].likes[me] = Date.now();
-    if (!Object.keys(VARIANTS[n].likes).length) delete VARIANTS[n].likes;
-    dirty.add(n);
-    updateLikeBtn(gm, n);
-    await persist(null);
+  // cœur sur le fil principal — visible et cliquable par TOUS (god mode ou non)
+  const ANON_KEY = 'sim_anon_likes';
+  function anonSet() { try { return new Set(JSON.parse(localStorage.getItem(ANON_KEY) || '[]')); } catch (e) { return new Set(); } }
+  function anonLiked(n) { return anonSet().has(n); }
+  function toggleAnonLike(n) {
+    const s = anonSet();
+    if (s.has(n)) s.delete(n); else s.add(n);
+    localStorage.setItem(ANON_KEY, JSON.stringify([...s]));
   }
-  function updateLikeBtn(gm, n) {
-    const btn = gm.querySelector('.gm-like');
-    if (!btn) return;
-    btn.classList.toggle('liked', likedByMe(n));
-    const nEl = btn.querySelector('.gm-like-n'); if (nEl) nEl.textContent = likeCount(n);
-    btn.title = likeTitle(n);
+  function likeHTML(n) {
+    const liked = isOn() ? likedByMe(n) : anonLiked(n);
+    const c = likeCount(n);
+    return `<div class="like-row"><button class="like${liked ? ' liked' : ''}" data-n="${n}" aria-label="aimer" title="${esc(isOn() ? likeTitle(n) : '')}">♥${c ? ` <span class="like-n">${c}</span>` : ''}</button></div>`;
+  }
+  function updateLikeButton(btn, n) {
+    const liked = isOn() ? likedByMe(n) : anonLiked(n);
+    btn.classList.toggle('liked', liked);
+    const c = likeCount(n);
+    let nEl = btn.querySelector('.like-n');
+    if (c) { if (!nEl) { nEl = document.createElement('span'); nEl.className = 'like-n'; btn.appendChild(nEl); } nEl.textContent = c; }
+    else if (nEl) nEl.remove();
+    btn.title = isOn() ? likeTitle(n) : '';
+  }
+  function handleLikeClick(n, btn) {
+    if (isOn()) {
+      // contributeur connecté : like nommé, partagé sur GitHub
+      VARIANTS[n] = VARIANTS[n] || { activeId: 'orig', versions: [] };
+      VARIANTS[n].likes = VARIANTS[n].likes || {};
+      const me = author();
+      if (VARIANTS[n].likes[me]) delete VARIANTS[n].likes[me];
+      else VARIANTS[n].likes[me] = Date.now();
+      if (!Object.keys(VARIANTS[n].likes).length) delete VARIANTS[n].likes;
+      dirty.add(n);
+      updateLikeButton(btn, n);
+      persist(null).then(() => updateLikeButton(btn, n)); // reflète les likes des autres après fusion
+    } else {
+      // visiteur non connecté : like local (anonyme), non agrégé
+      toggleAnonLike(n);
+      updateLikeButton(btn, n);
+    }
+  }
+  function wireLikes(contentEl) {
+    contentEl.querySelectorAll('.like').forEach((btn) => {
+      const n = +btn.dataset.n;
+      if (btn.dataset.wired) return;
+      btn.dataset.wired = '1';
+      btn.addEventListener('click', () => handleLikeClick(n, btn));
+    });
   }
   // texte affiché dans le fil général (la version validée), ou null si l'original
   function activeFragment(n) {
@@ -338,7 +369,6 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
         <button class="gm-acc-btn" data-panel="ctx">▸ contexte</button>
         <button class="gm-acc-btn" data-panel="tweak">▸ tweak</button>
         <button class="gm-acc-btn" data-panel="edit">▸ éditer</button>
-        <button class="gm-like${likedByMe(n) ? ' liked' : ''}" title="${esc(likeTitle(n))}">♥ <span class="gm-like-n">${likeCount(n)}</span></button>
         ${vs.length > 1 ? `<span class="gm-count">${vs.length} versions</span>` : ''}
       </div>
 
@@ -451,9 +481,6 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     // régénération
     const regenBtn = gm.querySelector('.gm-regen');
     if (regenBtn) regenBtn.addEventListener('click', () => doRegen(gm, n));
-    // like (cœur)
-    const likeBtn = gm.querySelector('.gm-like');
-    if (likeBtn) likeBtn.addEventListener('click', () => toggleLike(gm, n));
     // carrousel
     wireCarousel(gm, n);
   }
@@ -720,5 +747,5 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   loadVariants();
   loadMetas();
 
-  window.GodMode = { isOn, author, activeFragment, controlsHTML, onRenderChapter, onRenderSidebar, renderDashboard };
+  window.GodMode = { isOn, author, activeFragment, controlsHTML, onRenderChapter, onRenderSidebar, renderDashboard, likeHTML, wireLikes };
 })();
