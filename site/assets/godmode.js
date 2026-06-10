@@ -618,16 +618,21 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   }
 
   function openSettings() {
+    const viaProxy = !!PROXY_URL;
+    const keyField = viaProxy
+      ? `<p class="gm-modal-p" style="color:var(--accent)">✓ clé API gérée par le proxy Cloudflare — rien à entrer pour régénérer.</p>`
+      : `<label class="gm-flab">clé API Anthropic <small>(sk-ant-…)</small></label>
+         <input id="gmKey" type="password" class="gm-input" placeholder="sk-ant-..." value="${esc(LS.apiKey)}" autocomplete="off">`;
     const m = modal(`
       <div class="gm-lab">réglages god mode — ${author()}</div>
-      <p class="gm-modal-p">stockés uniquement dans ce navigateur. la clé Anthropic sert à régénérer ; le token GitHub à partager les variantes.</p>
-      <label class="gm-flab">clé API Anthropic <small>(sk-ant-…)</small></label>
-      <input id="gmKey" type="password" class="gm-input" placeholder="sk-ant-..." value="${esc(LS.apiKey)}" autocomplete="off">
+      <p class="gm-modal-p">stockés uniquement dans ce navigateur. ${viaProxy ? 'le token GitHub sert à partager les variantes avec les autres.' : 'la clé Anthropic sert à régénérer ; le token GitHub à partager les variantes.'}</p>
+      ${keyField}
       <label class="gm-flab">token GitHub <small>(fine-grained, Contents: read+write sur ${GH.owner}/${GH.repo})</small></label>
       <input id="gmTok" type="password" class="gm-input" placeholder="github_pat_..." value="${esc(LS.ghToken)}" autocomplete="off">
       <div class="gm-modal-actions"><button id="gmSave" class="gm-primary">enregistrer</button><span id="gmSaved" class="gm-ok"></span></div>`);
     m.el.querySelector('#gmSave').onclick = () => {
-      LS.apiKey = m.el.querySelector('#gmKey').value.trim();
+      const k = m.el.querySelector('#gmKey');
+      if (k) LS.apiKey = k.value.trim();
       LS.ghToken = m.el.querySelector('#gmTok').value.trim();
       m.el.querySelector('#gmSaved').textContent = 'enregistré ✓';
     };
