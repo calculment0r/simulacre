@@ -99,16 +99,22 @@
       location.hash = 'f-' + n;
       $('#jumpN').value = '';
     });
+
+    if (window.GodMode) window.GodMode.onRenderSidebar($('#sidebar'));
   }
 
   // ── une entrée (fragment) ───────────────────────────────────────
   function renderEntry(t) {
     const meta = chMeta(t.chapitre);
+    const gm = window.GodMode;
+    const text = (gm && gm.activeFragment(t.n)) || t.fragment;
+    const controls = gm && gm.isOn() ? gm.controlsHTML(t) : '';
     return `<article class="entry" id="f-${t.n}">
       <div class="entry-label"><span class="n">fragment ${pad3(t.n)}</span> · ch.${pad(
       t.chapitre
     )} ${esc(meta ? meta.titre : '')}</div>
-      <div class="fragment-text">${paras(t.fragment)}</div>
+      <div class="fragment-text">${paras(text)}</div>
+      ${controls}
     </article>`;
   }
 
@@ -141,6 +147,7 @@
     </nav>`;
 
     $('#content').innerHTML = (ch === 1 ? masthead() : '') + head + entries + foot;
+    if (window.GodMode) window.GodMode.onRenderChapter($('#content'));
   }
 
   // ── orchestration ───────────────────────────────────────────────
@@ -163,6 +170,7 @@
   }
 
   window.addEventListener('hashchange', route);
+  window.__simRoute = route; // permet à god mode de redéclencher le rendu
 
   const prog = $('#prog');
   if (prog)

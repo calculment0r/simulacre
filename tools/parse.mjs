@@ -11,15 +11,15 @@ const OUT = join(ROOT, 'site', 'data');
 
 // ── Mapping chapitres (titres autonomes, cf. CLAUDE.md §9) ──────────────
 const CHAPTERS = [
-  { ch: 1, titre: 'La pensée hors de soi', min: 1, max: 34 },
-  { ch: 2, titre: 'Le fétiche génératif', min: 35, max: 53 },
-  { ch: 3, titre: "L'unité de façade", min: 54, max: 72 },
-  { ch: 4, titre: 'Souveraineté et servitude', min: 73, max: 124 },
-  { ch: 5, titre: 'Le temps fossile', min: 125, max: 146 },
-  { ch: 6, titre: 'La survie augmentée', min: 147, max: 164 },
-  { ch: 7, titre: 'Le mensonge du nuage', min: 165, max: 179 },
-  { ch: 8, titre: 'Le style de personne', min: 180, max: 211 },
-  { ch: 9, titre: "L'esprit fait chose", min: 212, max: 221 },
+  { ch: 1, titre: 'La faculté séparée', min: 1, max: 34 },
+  { ch: 2, titre: 'La cognition comme marchandise', min: 35, max: 53 },
+  { ch: 3, titre: "L'unité apparente de l'intelligence", min: 54, max: 72 },
+  { ch: 4, titre: "De l'utilisateur à l'opérateur", min: 73, max: 124 },
+  { ch: 5, titre: 'Temps, inférence et histoire', min: 125, max: 146 },
+  { ch: 6, titre: 'Le quotidien génératif', min: 147, max: 164 },
+  { ch: 7, titre: "L'infrastructure du Simulacre", min: 165, max: 179 },
+  { ch: 8, titre: 'La culture et la négation générée', min: 180, max: 211 },
+  { ch: 9, titre: "L'idéologie opératoire", min: 212, max: 221 },
 ];
 const chapForN = (n) => CHAPTERS.find((c) => n >= c.min && n <= c.max);
 
