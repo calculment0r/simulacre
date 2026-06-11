@@ -19,7 +19,12 @@
   const PROXY_URL = 'https://simulacre-proxy.luxigone.workers.dev';
 
   // ── identités ───────────────────────────────────────────────────
-  const USERS = { '007': 'Nico', '666': 'Eric' };
+  const USERS = {
+    '007': 'Nico',
+    '666': 'Eric',
+    'eric007': 'Eric',
+    'sab007': 'Sabrina',
+  };
 
   // ── opérateurs (méthode §1) → sliders ───────────────────────────
   const OPERATORS = [
@@ -751,15 +756,15 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   function openUnlock() {
     const m = modal(`
       <div class="gm-lab">accès god mode</div>
-      <p class="gm-modal-p">code à 3 chiffres.</p>
-      <input id="gmCode" type="password" inputmode="numeric" maxlength="3" placeholder="•••" class="gm-input gm-code-input" autocomplete="off">
+      <p class="gm-modal-p">ton mot de passe.</p>
+      <input id="gmCode" type="password" placeholder="mot de passe" class="gm-input" autocomplete="off">
       <div class="gm-modal-actions"><button id="gmOk" class="gm-primary">entrer</button><span id="gmErr" class="gm-err"></span></div>`);
     const inp = m.el.querySelector('#gmCode');
     inp.focus();
     const go = () => {
       const c = inp.value.trim();
       if (USERS[c]) { LS.code = c; m.close(); if (window.__simRoute) window.__simRoute(); }
-      else m.el.querySelector('#gmErr').textContent = 'code invalide';
+      else m.el.querySelector('#gmErr').textContent = 'mot de passe invalide';
     };
     m.el.querySelector('#gmOk').onclick = go;
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
