@@ -651,13 +651,27 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     try { const r = await fetch(PROXY_URL.replace(/\/$/, '') + '/annotations?_=' + Date.now(), { cache: 'no-store' }); if (r.ok) return await r.json(); } catch (e) {}
     return null;
   }
+  function saveLocalAnno() { try { localStorage.setItem('sim_annotations_local', JSON.stringify(ANNOTATIONS)); } catch (e) {} }
   async function loadAnnotations() {
     let remote = await fetchRemoteAnno();
     if (remote === null) { try { const r = await fetch('data/annotations.json?_=' + Date.now(), { cache: 'no-store' }); if (r.ok) remote = await r.json(); } catch (e) {} }
-    ANNOTATIONS = remote || {};
+    let local = {};
+    try { local = JSON.parse(localStorage.getItem('sim_annotations_local') || '{}'); } catch (e) {}
+    const base = remote || {};
+    // le distant fait foi, mais on ne perd pas les annotations locales pas encore synchronisées
+    ANNOTATIONS = Object.assign({}, local, base);
+    for (const k of Object.keys(local)) {
+      if (Array.isArray(base[k]) && Array.isArray(local[k])) {
+        const byId = {};
+        base[k].forEach((a) => { byId[a.id] = a; });
+        local[k].forEach((a) => { if (!byId[a.id]) byId[a.id] = a; });
+        ANNOTATIONS[k] = Object.values(byId);
+      }
+    }
     if (window.__simRoute) window.__simRoute();
   }
   async function persistAnno() {
+    saveLocalAnno();
     if (!PROXY_URL) return;
     try {
       const remote = (await fetchRemoteAnno()) || {};
