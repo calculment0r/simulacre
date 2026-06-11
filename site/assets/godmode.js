@@ -90,6 +90,7 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
 
   let VARIANTS = {};       // { n: { activeId, versions:[...] } }
   let METAS = {};          // { n: "méta-restitution" } — pré-générées (data/metas.json)
+  let ANNOTATIONS = {};    // { n: [ {id, text, message, author, color, ts} ] }
   let varsSha = null;      // sha du fichier GitHub (pour commit)
   let loaded = false;
 
@@ -456,6 +457,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   function onRenderChapter(contentEl) {
     if (!isOn()) return;
     contentEl.querySelectorAll('.gm').forEach((gm) => wireFragment(gm));
+    contentEl.querySelectorAll('.entry').forEach((entry) => applyAnnotations(entry, +entry.id.replace('f-', '')));
   }
 
   function wireFragment(gm) {
@@ -634,6 +636,140 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     await persist(null);
   }
 
+  // ════════════════ ANNOTATIONS (sélection + « C ») ═══════════════
+  const dirtyAnno = new Set();
+  function annosOf(n) { return ANNOTATIONS[n] || []; }
+  function hexToRgba(hex, a) {
+    const h = (hex || '#c9ff3c').replace('#', '');
+    const f = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+    const num = parseInt(f, 16);
+    return `rgba(${(num >> 16) & 255},${(num >> 8) & 255},${num & 255},${a})`;
+  }
+
+  async function fetchRemoteAnno() {
+    if (!PROXY_URL) return null;
+    try { const r = await fetch(PROXY_URL.replace(/\/$/, '') + '/annotations?_=' + Date.now(), { cache: 'no-store' }); if (r.ok) return await r.json(); } catch (e) {}
+    return null;
+  }
+  async function loadAnnotations() {
+    let remote = await fetchRemoteAnno();
+    if (remote === null) { try { const r = await fetch('data/annotations.json?_=' + Date.now(), { cache: 'no-store' }); if (r.ok) remote = await r.json(); } catch (e) {} }
+    ANNOTATIONS = remote || {};
+    if (window.__simRoute) window.__simRoute();
+  }
+  async function persistAnno() {
+    if (!PROXY_URL) return;
+    try {
+      const remote = (await fetchRemoteAnno()) || {};
+      dirtyAnno.forEach((n) => { remote[n] = ANNOTATIONS[n]; });
+      ANNOTATIONS = remote;
+      const r = await fetch(PROXY_URL.replace(/\/$/, '') + '/annotations', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(ANNOTATIONS, null, 1) });
+      if (r.ok) dirtyAnno.clear();
+    } catch (e) { /* gardé en mémoire, re-tenté au prochain ajout */ }
+  }
+
+  function addAnnotation(n, text, message) {
+    if (!text || !message) return;
+    ANNOTATIONS[n] = ANNOTATIONS[n] || [];
+    ANNOTATIONS[n].push({ id: rid(), text, message, author: author(), color: userColor(author()), ts: Date.now() });
+    dirtyAnno.add(n);
+    const entry = document.getElementById('f-' + n);
+    if (entry) { const ft = entry.querySelector('.fragment-text'); if (ft) { ft.innerHTML = renderFrag(currentText(n)); applyAnnotations(entry, n); } }
+    persistAnno();
+  }
+  function removeAnnotation(n, id) {
+    const a = (ANNOTATIONS[n] || []).find((x) => x.id === id);
+    if (!a || a.author !== author()) return; // on ne supprime que ses propres annotations
+    ANNOTATIONS[n] = (ANNOTATIONS[n] || []).filter((x) => x.id !== id);
+    dirtyAnno.add(n);
+    const entry = document.getElementById('f-' + n);
+    if (entry) { const ft = entry.querySelector('.fragment-text'); if (ft) { ft.innerHTML = renderFrag(currentText(n)); applyAnnotations(entry, n); } }
+    persistAnno();
+    hideTip();
+  }
+
+  // surlignage DOM à la couleur de l'auteur + tooltip
+  function applyAnnotations(entry, n) {
+    if (!isOn()) return;
+    const ft = entry.querySelector('.fragment-text');
+    if (!ft) return;
+    annosOf(n).forEach((a) => wrapAnno(ft, a, n));
+  }
+  function wrapAnno(container, a, n) {
+    const needle = a.text; if (!needle) return;
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.parentElement && node.parentElement.classList.contains('anno')) continue;
+      const i = node.nodeValue.indexOf(needle);
+      if (i >= 0) {
+        const range = document.createRange();
+        range.setStart(node, i); range.setEnd(node, i + needle.length);
+        const mark = document.createElement('mark');
+        mark.className = 'anno';
+        mark.style.background = hexToRgba(a.color, 0.22);
+        mark.style.borderBottom = '2px solid ' + (a.color || userColor(a.author));
+        try { range.surroundContents(mark); bindAnnoTip(mark, a, n); } catch (e) {}
+        return;
+      }
+    }
+  }
+
+  let annoTip = null;
+  function hideTip() { if (annoTip) annoTip.style.display = 'none'; }
+  function bindAnnoTip(mark, a, n) {
+    const show = () => {
+      if (!annoTip) { annoTip = document.createElement('div'); annoTip.className = 'anno-tip'; document.body.appendChild(annoTip); }
+      const mine = a.author === author();
+      annoTip.innerHTML =
+        `<div class="anno-tip-head"><span class="anno-who" style="color:${a.color || userColor(a.author)}">${esc(a.author || '?')}</span> · ${esc(fmtDate(a.ts))}` +
+        (mine ? ` <button class="anno-del" data-n="${n}" data-id="${esc(a.id)}">supprimer</button>` : '') +
+        `</div><div class="anno-msg">${esc(a.message)}</div>`;
+      const del = annoTip.querySelector('.anno-del');
+      if (del) del.onclick = () => removeAnnotation(n, a.id);
+      const r = mark.getBoundingClientRect();
+      annoTip.style.display = 'block';
+      annoTip.style.top = window.scrollY + r.bottom + 8 + 'px';
+      annoTip.style.left = Math.min(window.scrollX + r.left, window.scrollX + window.innerWidth - 340) + 'px';
+    };
+    mark.addEventListener('mouseenter', show);
+    mark.addEventListener('mouseleave', () => setTimeout(() => { if (annoTip && !annoTip.matches(':hover')) hideTip(); }, 200));
+  }
+
+  function openAnnoDialog(n, selectedText) {
+    const m = modal(`
+      <div class="gm-lab">annoter — fragment ${pad3(n)}</div>
+      <blockquote class="anno-sel">« ${esc(selectedText)} »</blockquote>
+      <textarea id="annoMsg" class="gm-input" rows="3" placeholder="ton commentaire…" autocomplete="off"></textarea>
+      <div class="gm-modal-actions"><button id="annoOk" class="gm-primary">annoter</button> <button id="annoCancel" class="gm-edit-cancel">annuler</button></div>`);
+    const ta = m.el.querySelector('#annoMsg'); ta.focus();
+    m.el.querySelector('#annoCancel').onclick = () => m.close();
+    const go = () => { const msg = ta.value.trim(); if (!msg) return; addAnnotation(n, selectedText, msg); m.close(); };
+    m.el.querySelector('#annoOk').onclick = go;
+    ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) go(); });
+  }
+
+  function onKeyAnnotate(e) {
+    if (!isOn()) return;
+    if (e.key !== 'c' && e.key !== 'C') return;
+    const ae = document.activeElement;
+    if (ae && (/^(INPUT|TEXTAREA)$/.test(ae.tagName) || ae.isContentEditable)) return;
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    const text = sel.toString().trim();
+    if (!text || text.length < 2) return;
+    const node = sel.anchorNode;
+    const el = node && (node.nodeType === 3 ? node.parentElement : node);
+    const entry = el && el.closest && el.closest('.entry');
+    if (!entry) return;
+    const ft = entry.querySelector('.fragment-text');
+    if (!ft || !ft.contains(sel.anchorNode)) return;
+    e.preventDefault();
+    const n = +entry.id.replace('f-', '');
+    openAnnoDialog(n, text);
+    sel.removeAllRanges();
+  }
+
   // ════════════════ DASHBOARD « mon atelier » ═════════════════════
   const chMeta = (ch) => (window.CHAPITRES || []).find((c) => c.ch === ch);
   const fragNo = (n) => String(n).padStart(3, '0');
@@ -800,6 +936,8 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   loadLocalInto();
   loadVariants();
   loadMetas();
+  loadAnnotations();
+  document.addEventListener('keydown', onKeyAnnotate);
 
   window.GodMode = { isOn, author, activeFragment, controlsHTML, onRenderChapter, onRenderSidebar, renderDashboard, likeHTML, wireLikes };
 })();

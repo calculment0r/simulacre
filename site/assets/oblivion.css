@@ -700,3 +700,18 @@ body.god-on::after {
 .like:active { transform: scale(1.2); }
 .like.liked { color: var(--red); }
 .like .like-n { font-size: 15px; letter-spacing: .04em; }
+
+/* ════════════ ANNOTATIONS ════════════ */
+mark.anno { color: inherit; padding: 0 1px; border-radius: 1px; cursor: help; }
+.anno-tip {
+  position: absolute; z-index: 11050; max-width: 330px;
+  background: var(--bg3); border: 1px solid var(--border2);
+  padding: 12px 14px; box-shadow: 0 10px 34px rgba(0,0,0,.55);
+  display: none;
+}
+.anno-tip-head { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; color: var(--dim); display: flex; align-items: center; gap: 8px; }
+.anno-who { font-weight: 500; text-transform: uppercase; letter-spacing: .08em; }
+.anno-del { margin-left: auto; font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .06em; background: transparent; border: 1px solid var(--border2); color: var(--muted); padding: 3px 7px; cursor: pointer; }
+.anno-del:hover { color: var(--red); border-color: var(--red); }
+.anno-msg { font-family: var(--serif); font-size: 16px; line-height: 1.45; color: var(--text); margin-top: 9px; }
+.anno-sel { border-left: 2px solid var(--accent); padding: 8px 14px; margin: 0 0 14px; font-family: var(--serif); font-style: italic; color: var(--muted); font-size: 15px; line-height: 1.45; }
