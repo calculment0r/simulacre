@@ -24,6 +24,9 @@
     '666': 'Eric',
     '013': 'Sabrina',
   };
+  // couleur de signature de chaque contributeur (cadre, surlignages d'annotation)
+  const USER_COLORS = { Nico: '#c9ff3c', Eric: '#ff4455', Sabrina: '#4499ff' }; // vert · rouge · bleu
+  function userColor(name) { return USER_COLORS[name] || '#c9ff3c'; }
 
   // ── opérateurs (méthode §1) → sliders ───────────────────────────
   const OPERATORS = [
@@ -717,8 +720,9 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     const on = isOn();
     const ctl = document.createElement('div');
     ctl.className = 'gm-side';
+    const col = on ? userColor(author()) : '';
     ctl.innerHTML = on
-      ? `<div class="gm-side-on">● <b>god mode</b> — ${esc(author())}</div>
+      ? `<div class="gm-side-on"><span class="gm-dot" style="color:${col}">●</span> <b>god mode</b> — ${esc(author())}</div>
          <div class="gm-side-btns">
            <button id="gmDash">Dashboard</button>
            ${PROXY_URL ? '' : '<button id="gmSettings">réglages</button>'}
@@ -726,11 +730,14 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
          </div>`
       : `<button id="gmEnter">⌁ god mode</button>`;
     foot.appendChild(ctl);
-    document.body.classList.toggle('god-on', on); // cadre vert autour de la page
+    document.body.classList.toggle('god-on', on); // cadre coloré autour de la page
+    if (on) document.body.style.setProperty('--god-color', col);
+    else document.body.style.removeProperty('--god-color');
 
     if (on) {
       sidebarEl.querySelector('#gmLock').onclick = () => {
-        LS.code = ''; document.body.classList.remove('god-on'); location.hash = '';
+        LS.code = ''; document.body.classList.remove('god-on');
+        document.body.style.removeProperty('--god-color'); location.hash = '';
         if (window.__simRoute) window.__simRoute();
       };
       sidebarEl.querySelector('#gmDash').onclick = () => { location.hash = '#mine'; };
