@@ -902,13 +902,19 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
       : `<button id="gmEnter">⌁ god mode</button>`;
     foot.appendChild(ctl);
     document.body.classList.toggle('god-on', on); // cadre coloré autour de la page
-    if (on) document.body.style.setProperty('--god-color', col);
-    else document.body.style.removeProperty('--god-color');
+    if (on) {
+      document.body.style.setProperty('--god-color', col);
+      document.body.style.setProperty('--god-sel', hexToRgba(col, 0.32)); // sélection de texte
+    } else {
+      document.body.style.removeProperty('--god-color');
+      document.body.style.removeProperty('--god-sel');
+    }
 
     if (on) {
       sidebarEl.querySelector('#gmLock').onclick = () => {
         LS.code = ''; document.body.classList.remove('god-on');
-        document.body.style.removeProperty('--god-color'); location.hash = '';
+        document.body.style.removeProperty('--god-color');
+        document.body.style.removeProperty('--god-sel'); location.hash = '';
         if (window.__simRoute) window.__simRoute();
       };
       sidebarEl.querySelector('#gmDash').onclick = () => { location.hash = '#mine'; };
@@ -976,6 +982,39 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   loadMetas();
   loadAnnotations();
   document.addEventListener('keydown', onKeyAnnotate);
+
+  // ── sync auto : voir les likes/commentaires des autres sans refresh ──
+  function applyRemoteVariants(remote) {
+    let local = {}; try { local = JSON.parse(localStorage.getItem('sim_variants_local') || '{}'); } catch (e) {}
+    const base = remote || {};
+    VARIANTS = Object.assign({}, local, base);
+    for (const k of Object.keys(local)) {
+      if (base[k] && local[k] && local[k].likes) { VARIANTS[k] = Object.assign({}, base[k]); VARIANTS[k].likes = Object.assign({}, local[k].likes, base[k].likes); }
+    }
+  }
+  function applyRemoteAnno(remote) {
+    let local = {}; try { local = JSON.parse(localStorage.getItem('sim_annotations_local') || '{}'); } catch (e) {}
+    const base = remote || {};
+    ANNOTATIONS = Object.assign({}, local, base);
+    for (const k of Object.keys(local)) {
+      if (Array.isArray(base[k]) && Array.isArray(local[k])) { const byId = {}; base[k].forEach((a) => { byId[a.id] = a; }); local[k].forEach((a) => { if (!byId[a.id]) byId[a.id] = a; }); ANNOTATIONS[k] = Object.values(byId); }
+    }
+  }
+  let _lastV = null, _lastA = null;
+  async function poll() {
+    if (!PROXY_URL) return;
+    if (document.querySelector('.gm-modal-back')) return;          // modale ouverte → on attend
+    const ae = document.activeElement;
+    if (ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return;       // en train de taper → on attend
+    try {
+      const [rv, ra] = await Promise.all([fetchRemoteVariants(), fetchRemoteAnno()]);
+      let changed = false;
+      if (rv !== null) { const h = JSON.stringify(rv); if (_lastV !== null && h !== _lastV) { applyRemoteVariants(rv); changed = true; } _lastV = h; }
+      if (ra !== null) { const h = JSON.stringify(ra); if (_lastA !== null && h !== _lastA) { applyRemoteAnno(ra); changed = true; } _lastA = h; }
+      if (changed && window.__simRoute) window.__simRoute();
+    } catch (e) {}
+  }
+  setInterval(poll, 15000);
 
   window.GodMode = { isOn, author, activeFragment, controlsHTML, onRenderChapter, onRenderSidebar, renderDashboard, likeHTML, wireLikes };
 })();

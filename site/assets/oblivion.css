@@ -765,3 +765,11 @@ mark.anno { color: inherit; padding: 0 1px; border-radius: 1px; cursor: help; }
 .la-full { font-family: var(--serif); font-size: 19px; line-height: 1.5; color: var(--text); margin-bottom: 16px; }
 .la-voir { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-decoration: none; border: 1px solid var(--border2); padding: 8px 14px; transition: all .18s; display: inline-block; }
 .la-voir:hover { color: var(--accent); border-color: var(--accent); }
+
+/* sélection de texte à la couleur du user (god mode) */
+body.god-on ::selection { background: var(--god-sel, rgba(201,255,60,0.30)); }
+body.god-on ::-moz-selection { background: var(--god-sel, rgba(201,255,60,0.30)); }
+
+/* zone de texte du commentaire : cadre à la couleur du user */
+#annoMsg { border: 1px solid var(--god-color, var(--accent)); }
+#annoMsg:focus { border-color: var(--god-color, var(--accent)); box-shadow: inset 0 0 0 1px var(--god-color, var(--accent)); }
