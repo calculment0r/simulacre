@@ -23,7 +23,7 @@
     '007': 'Nico',
     '666': 'Eric',
     'eric007': 'Eric',
-    'sab007': 'Sabrina',
+    '013': 'Sabrina',
   };
 
   // ── opérateurs (méthode §1) → sliders ───────────────────────────
