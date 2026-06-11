@@ -8,19 +8,6 @@
     "author": "Sabrina",
     "ts": 1781191242433,
     "origin": "manual"
-   },
-   {
-    "id": "v_35wbru_1",
-    "fragment": "toute la vie des sociétés où règnent les conditions actuelles de production s'annonce comme une immense accumulation de réponses. ce qui était directement pensé, décidé, fait par nous se tient maintenant ailleurs, produit à notre place par des machines qui n'imitent plus le geste mais l'exécutent. la pensée n'est plus représentée, elle est sous-traitée ; la faculté ne dort pas, elle a changé de siège. la représentation gardait un écart, même menteur, entre le monde et son image. le simulacre a fermé l'écart : la réponse se suffit, plus rien n'est requis derrière elle. nous croyions partager un monde commun ; nous ne partageons plus que ce qui sort de la machine. le commun n'est plus ce qui nous relie au réel, c'est ce qui nous en dispense. mouvement autonome du non-vivant qui parle, et plus personne au bout du fil.",
-    "author": "Nico",
-    "ts": 1781191304858,
-    "tweak": "on doit pensez plus collectif et frite",
-    "weights": {
-     "Meillassoux": 89,
-     "Latour": 88,
-     "Stiegler": 8
-    },
-    "model": "claude-opus-4-8"
    }
   ]
  },
