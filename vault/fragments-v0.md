@@ -1,10 +1,12 @@
 # VAULT — Fragments V0
 
-> Snapshot des 221 fragments au 2026-06-10. Version ORIGINALE (V0), figée avant la production V2 (protocole RENVERSEMENT).
-> Source de vérité immuable : ne pas éditer. Restauration = recopier dans site/data/.
+> Snapshot des 221 fragments (V0) + structure des 9 chapitres : titres, catégories et **loglines**.
+> Version originale figée avant la production V2. Ne pas éditer — régénérer avec `node tools/make-vault.mjs`.
 
 
-## Chapitre 1 — Exonoèse
+## Chapitre 1 — Exonoèse  ·  concept  ·  (1–34)
+
+> l'exonoèse est le moment où la pensée s'exerce hors de qui la croyait sienne. elle ne se donne jamais pour une perte mais pour un soulagement — et c'est à cette condition, l'affect du confort, qu'elle devient irréversible.
 
 ### Fragment 1
 
@@ -143,7 +145,9 @@ le sujet potentiel de la négation du Simulacre n'est pas défini par sa positio
 le Simulacre est la pensée humaine à un tel degré d'accumulation qu'elle devient génération.
 
 
-## Chapitre 2 — Narcisse Technē
+## Chapitre 2 — Narcisse Technē  ·  économie  ·  (35–53)
+
+> la faculté s'est faite marchandise d'infrastructure : on loue à la demande ce qu'on savait produire. le fétiche n'est pas le modèle mais le reflet — l'image automatisée de notre propre puissance, qu'on loue désormais à qui la détient.
 
 ### Fragment 35
 
@@ -222,7 +226,9 @@ la production cognitive augmentée et l'aliénation cognitive augmentée croisse
 la pensée réelle — celle qui transforme celui qui pense, qui rencontre quelque chose de résistant, qui ne savait pas d'avance où elle allait — est de plus en plus difficile à conduire dans le cadre de la survie cognitive générée. ce n'est pas une observation morale. c'est une condition matérielle. et les conditions d'une pratique différente sont précisément là où le Simulacre ne suffit pas, là où il accroche, là où il rate. c'est là qu'il faut travailler.
 
 
-## Chapitre 3 — Fragmentations calibrées
+## Chapitre 3 — Fragmentations calibrées  ·  fausse unité  ·  (54–72)
+
+> l'intelligence commune est une fausse unité : tous reliés au même cœur, aucun ne le possède. la division n'a pas disparu, elle s'est calibrée — l'accès au grand nombre, les poids à quelques-uns —, et ce partage inégal s'énonce comme démocratisation.
 
 ### Fragment 54
 
@@ -301,7 +307,9 @@ le Simulacre est l'unité d'une contradiction : il augmente et prolétarise simu
 la réunification apparente que propose le Simulacre — le langage commun des APIs, les protocoles partagés, l'interface universelle — est la réunification de la séparation cognitive qu'il a lui-même produite. l'interface universelle est l'universalisation de la séparation universelle. on parle enfin tous la même langue — celle d'un système qui n'en parle aucune. l'unité qu'il offre est toujours l'unité d'un monde qui s'est séparé pour la produire.
 
 
-## Chapitre 4 — Unititudes
+## Chapitre 4 — Unititudes  ·  sujet  ·  (73–124)
+
+> le sujet qui pourrait nier le Simulacre existe en droit, pas en fait : la masse de ceux dont le travail cognitif l'alimente, mais dispersée, mise en concurrence, seule devant l'interface. une condition n'est pas un acteur — et rien, pour l'instant, ne fait d'une multitude d'isolés autre chose qu'une somme d'usagers.
 
 ### Fragment 73
 
@@ -512,7 +520,9 @@ le Simulacre est la forme actuelle du vraisemblable-sans-vrai. la critique doit 
 toute alternative au Simulacre doit être anti-générative dans son geste central. elle ne peut pas se constituer comme une meilleure génération, un meilleur modèle, une meilleure assistance — sans devenir aussitôt un moment du Simulacre. ce qui nie le Simulacre ne lui ressemble pas. sinon ce n'est pas une négation, c'est une variante.
 
 
-## Chapitre 5 — Chronofossile
+## Chapitre 5 — Chronofossile  ·  histoire  ·  (125–146)
+
+> le modèle n'a pas de présent : passé gelé à une date, il parle d'un temps qu'il n'a pas connu. l'interroger sur le monde, c'est questionner un mort très bien informé sur la veille de sa mort, et prendre sa réponse pour une nouvelle.
 
 ### Fragment 125
 
@@ -603,7 +613,9 @@ l'histoire réelle — qui a produit la matière du Simulacre, qui en a été d�
 un temps cognitif vécu, partagé, irréversible — le temps d'un collectif qui produit et comprend ensemble, qui se souvient de ce qu'il a appris et le transmet — est la condition de toute alternative réelle. contre le présent perpétuel et solitaire du Simulacre, le temps long d'une communauté qui sait ce qu'elle fait et pourquoi.
 
 
-## Chapitre 6 — Still Loading
+## Chapitre 6 — Still Loading  ·  quotidien  ·  (147–164)
+
+> le temps que la génération rend n'est pas rendu, il est vidé de la difficulté qui le remplissait. on vit dans l'attente de la version suivante — un présent qui se relance sans rien accumuler, la mise à jour permanente érigée en forme du temps.
 
 ### Fragment 147
 
@@ -678,7 +690,9 @@ le Simulacre produit les conditions de son propre retour. chaque génération fo
 la totalité du temps cognitif dans la société du Simulacre tend vers un temps de non-pensée — non l'absence d'activité mentale, mais son augmentation dans toutes les dimensions, qui est l'augmentation de la survie, pas de la vie. on produit plus, plus vite, dans plus de domaines. et le temps où quelque chose arrivait vraiment dans la pensée — la difficulté, la lenteur, la découverte — recule à mesure que tout devient plus efficace. la pensée augmentée est la survie de la pensée, pas sa vie.
 
 
-## Chapitre 7 — Atmotechnie
+## Chapitre 7 — Atmotechnie  ·  infrastructure  ·  (165–179)
+
+> le nuage est une atmotechnie : non de l'air, mais une atmosphère fabriquée — bunkers climatisés, fleuves détournés, silicium. on pense désormais dans un milieu produit par quelques-uns, et c'est ce milieu, non l'outil, qui décide de ce qui s'y peut penser.
 
 ### Fragment 165
 
@@ -741,7 +755,9 @@ l'auto-émancipation à l'égard du Simulacre passe par la libération vis-à-vi
 l'aménagement du calcul atteint sa maturité au moment où il devient invisible — où plus personne ne remarque que penser passe par une infrastructure qu'on ne possède pas, parce que c'est devenu l'évidence même. c'est à ce point que l'espace organisé appelle sa négation. et c'est là que se pose la question suivante : que devient la culture quand toute sa production passe par cette infrastructure ? c'est l'objet du chapitre qui vient.
 
 
-## Chapitre 8 — Inflammation acéphale
+## Chapitre 8 — Inflammation acéphale  ·  culture  ·  (180–211)
+
+> la culture sans tête prolifère comme un symptôme : style de personne, œuvre sans main, originalité en série. et la négation elle-même est devenue générable — le système fabrique sa propre critique avant qu'on l'ait formulée, de sorte qu'il ne reste rien à récupérer : tout est déjà produit.
 
 ### Fragment 180
 
@@ -872,7 +888,9 @@ la théorie du Simulacre est la conscience qu'une pratique souveraine prend d'el
 le Simulacre ne se dépasse pas par une meilleure génération, ni par une critique plus fine — mais par une pratique qui abolit la séparation entre celui qui produit et les moyens de produire. cette pratique n'est pas qu'une idée : elle repose sur des machines, des compétences, une infrastructure. il reste à comprendre comment le Simulacre, idéologie de la pensée externalisée, est devenu une chose matérielle parmi les choses — une idéologie faite matière. c'est l'objet du dernier chapitre.
 
 
-## Chapitre 9 — Hyperstition / Hyperstructure
+## Chapitre 9 — Hyperstition / Hyperstructure  ·  idéologie totale  ·  (212–221)
+
+> une hyperstition est une fiction qui se vérifie en se déployant. le Simulacre est l'idéologie qui n'a plus à être crue : elle a appris à fonctionner, et son fonctionnement tient lieu de croyance — son extinction, de seule réfutation possible.
 
 ### Fragment 212
 

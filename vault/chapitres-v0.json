@@ -1,0 +1,74 @@
+[
+  {
+    "ch": 1,
+    "titre": "Exonoèse",
+    "cat": "concept",
+    "logline": "l'exonoèse est le moment où la pensée s'exerce hors de qui la croyait sienne. elle ne se donne jamais pour une perte mais pour un soulagement — et c'est à cette condition, l'affect du confort, qu'elle devient irréversible.",
+    "min": 1,
+    "max": 34
+  },
+  {
+    "ch": 2,
+    "titre": "Narcisse Technē",
+    "cat": "économie",
+    "logline": "la faculté s'est faite marchandise d'infrastructure : on loue à la demande ce qu'on savait produire. le fétiche n'est pas le modèle mais le reflet — l'image automatisée de notre propre puissance, qu'on loue désormais à qui la détient.",
+    "min": 35,
+    "max": 53
+  },
+  {
+    "ch": 3,
+    "titre": "Fragmentations calibrées",
+    "cat": "fausse unité",
+    "logline": "l'intelligence commune est une fausse unité : tous reliés au même cœur, aucun ne le possède. la division n'a pas disparu, elle s'est calibrée — l'accès au grand nombre, les poids à quelques-uns —, et ce partage inégal s'énonce comme démocratisation.",
+    "min": 54,
+    "max": 72
+  },
+  {
+    "ch": 4,
+    "titre": "Unititudes",
+    "cat": "sujet",
+    "logline": "le sujet qui pourrait nier le Simulacre existe en droit, pas en fait : la masse de ceux dont le travail cognitif l'alimente, mais dispersée, mise en concurrence, seule devant l'interface. une condition n'est pas un acteur — et rien, pour l'instant, ne fait d'une multitude d'isolés autre chose qu'une somme d'usagers.",
+    "min": 73,
+    "max": 124
+  },
+  {
+    "ch": 5,
+    "titre": "Chronofossile",
+    "cat": "histoire",
+    "logline": "le modèle n'a pas de présent : passé gelé à une date, il parle d'un temps qu'il n'a pas connu. l'interroger sur le monde, c'est questionner un mort très bien informé sur la veille de sa mort, et prendre sa réponse pour une nouvelle.",
+    "min": 125,
+    "max": 146
+  },
+  {
+    "ch": 6,
+    "titre": "Still Loading",
+    "cat": "quotidien",
+    "logline": "le temps que la génération rend n'est pas rendu, il est vidé de la difficulté qui le remplissait. on vit dans l'attente de la version suivante — un présent qui se relance sans rien accumuler, la mise à jour permanente érigée en forme du temps.",
+    "min": 147,
+    "max": 164
+  },
+  {
+    "ch": 7,
+    "titre": "Atmotechnie",
+    "cat": "infrastructure",
+    "logline": "le nuage est une atmotechnie : non de l'air, mais une atmosphère fabriquée — bunkers climatisés, fleuves détournés, silicium. on pense désormais dans un milieu produit par quelques-uns, et c'est ce milieu, non l'outil, qui décide de ce qui s'y peut penser.",
+    "min": 165,
+    "max": 179
+  },
+  {
+    "ch": 8,
+    "titre": "Inflammation acéphale",
+    "cat": "culture",
+    "logline": "la culture sans tête prolifère comme un symptôme : style de personne, œuvre sans main, originalité en série. et la négation elle-même est devenue générable — le système fabrique sa propre critique avant qu'on l'ait formulée, de sorte qu'il ne reste rien à récupérer : tout est déjà produit.",
+    "min": 180,
+    "max": 211
+  },
+  {
+    "ch": 9,
+    "titre": "Hyperstition / Hyperstructure",
+    "cat": "idéologie totale",
+    "logline": "une hyperstition est une fiction qui se vérifie en se déployant. le Simulacre est l'idéologie qui n'a plus à être crue : elle a appris à fonctionner, et son fonctionnement tient lieu de croyance — son extinction, de seule réfutation possible.",
+    "min": 212,
+    "max": 221
+  }
+]

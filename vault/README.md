@@ -7,7 +7,10 @@ Coffre des versions figées. **Ne pas éditer ces fichiers** : ce sont des snaps
 | Fichier | Description |
 |---|---|
 | `theses.v0.json` | Copie intégrale des 221 fragments (V0), même schéma que `site/data/theses.json`. |
-| `fragments-v0.md` | Export lisible : les 221 fragments V0, par chapitre. |
+| `chapitres-v0.json` | Structure des 9 chapitres : `titre`, `cat`, **`logline`**, `min`, `max`. |
+| `fragments-v0.md` | Export lisible : par chapitre (titre · catégorie · **logline**) puis les fragments. |
+
+Régénérer : `node tools/make-vault.mjs` (relit les données courantes, y compris les loglines).
 
 ## Repères
 
