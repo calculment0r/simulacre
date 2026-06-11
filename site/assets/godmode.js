@@ -193,17 +193,7 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
     if (remote === null) {
       try { const r = await fetch('data/variants.json?_=' + Date.now(), { cache: 'no-store' }); if (r.ok) remote = await r.json(); } catch (e) {}
     }
-    let local = {};
-    try { local = JSON.parse(localStorage.getItem('sim_variants_local') || '{}'); } catch (e) {}
-    const base = remote || {};
-    // le distant fait foi, mais on ne perd JAMAIS ce qui n'a pas encore été synchronisé (likes en local)
-    VARIANTS = Object.assign({}, local, base);
-    for (const k of Object.keys(local)) {
-      if (base[k] && local[k] && local[k].likes) {
-        VARIANTS[k] = Object.assign({}, base[k]);
-        VARIANTS[k].likes = Object.assign({}, local[k].likes, base[k].likes); // union des likes
-      }
-    }
+    applyRemoteVariants(remote);
     loaded = true;
     if (window.__simRoute) window.__simRoute();
   }
@@ -433,7 +423,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     const vs = versionsOf(n);
     if (vs.length <= 1) return '';
     const activeId = activeIdOf(n);
-    const dots = vs.map((v, i) => `<button class="gm-dot${i === 0 ? ' cur' : ''}" data-i="${i}" title="${v.origin === 'canonical' ? 'original' : (v.author || '?') + (v.ts ? ' · ' + fmtDate(v.ts) : '')}"></button>`).join('');
+    const dots = vs.map((v, i) => `<button class="gm-dot${v.id === activeId ? ' cur' : ''}" data-i="${i}" title="${v.origin === 'canonical' ? 'original' : (v.author || '?') + (v.ts ? ' · ' + fmtDate(v.ts) : '')}"></button>`).join('');
     return `<div class="gm-car-head"><span class="gm-lab">versions — swipe</span><div class="gm-dots">${dots}</div></div>
       <div class="gm-car-track">${vs.map((v, i) => slideHTML(n, v, i, activeId)).join('')}</div>`;
   }
@@ -443,7 +433,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     const mark = v.origin === 'manual' ? '✎ ' : '';
     const who = v.origin === 'canonical' ? 'original' : `${mark}${v.author || '?'}${v.ts ? ' · ' + fmtDate(v.ts) : ''}`;
     const canDelete = v.origin !== 'canonical' && v.author === author();
-    return `<div class="gm-slide${i === 0 ? ' show' : ''}" data-i="${i}" data-id="${esc(v.id)}">
+    return `<div class="gm-slide${v.id === activeId ? ' show' : ''}" data-i="${i}" data-id="${esc(v.id)}">
       <div class="gm-slide-meta"><span class="gm-who">${esc(who)}</span>${isActive ? '<span class="gm-active-tag">dans le fil</span>' : ''}</div>
       <div class="gm-slide-text">${md(v.fragment).replace(/\n/g, '<br>')}</div>
       <div class="gm-slide-actions">
@@ -511,7 +501,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     if (!car) return;
     const slides = [...car.querySelectorAll('.gm-slide')];
     const dots = [...car.querySelectorAll('.gm-dot')];
-    let idx = 0;
+    let idx = Math.max(0, slides.findIndex((s) => s.classList.contains('show'))); // démarre sur la version active
     const show = (i) => {
       idx = Math.max(0, Math.min(slides.length - 1, i));
       slides.forEach((s, k) => s.classList.toggle('show', k === idx));
@@ -655,19 +645,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   async function loadAnnotations() {
     let remote = await fetchRemoteAnno();
     if (remote === null) { try { const r = await fetch('data/annotations.json?_=' + Date.now(), { cache: 'no-store' }); if (r.ok) remote = await r.json(); } catch (e) {} }
-    let local = {};
-    try { local = JSON.parse(localStorage.getItem('sim_annotations_local') || '{}'); } catch (e) {}
-    const base = remote || {};
-    // le distant fait foi, mais on ne perd pas les annotations locales pas encore synchronisées
-    ANNOTATIONS = Object.assign({}, local, base);
-    for (const k of Object.keys(local)) {
-      if (Array.isArray(base[k]) && Array.isArray(local[k])) {
-        const byId = {};
-        base[k].forEach((a) => { byId[a.id] = a; });
-        local[k].forEach((a) => { if (!byId[a.id]) byId[a.id] = a; });
-        ANNOTATIONS[k] = Object.values(byId);
-      }
-    }
+    applyRemoteAnno(remote);
     if (window.__simRoute) window.__simRoute();
   }
   async function persistAnno() {
@@ -984,21 +962,34 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
   document.addEventListener('keydown', onKeyAnnotate);
 
   // ── sync auto : voir les likes/commentaires des autres sans refresh ──
+  // le DISTANT fait foi (suppressions des autres propagées). On ne ré-ajoute
+  // que SES propres éléments locaux pas encore synchronisés.
   function applyRemoteVariants(remote) {
+    const base = remote ? JSON.parse(JSON.stringify(remote)) : {};
     let local = {}; try { local = JSON.parse(localStorage.getItem('sim_variants_local') || '{}'); } catch (e) {}
-    const base = remote || {};
-    VARIANTS = Object.assign({}, local, base);
-    for (const k of Object.keys(local)) {
-      if (base[k] && local[k] && local[k].likes) { VARIANTS[k] = Object.assign({}, base[k]); VARIANTS[k].likes = Object.assign({}, local[k].likes, base[k].likes); }
-    }
+    const me = author();
+    Object.keys(local).forEach((k) => {
+      const lv = local[k]; if (!lv) return;
+      const bk = (base[k] = base[k] || { activeId: 'orig', versions: [] });
+      (lv.versions || []).forEach((v) => {
+        if (v.author === me && !(bk.versions || []).some((x) => x.id === v.id)) { bk.versions = bk.versions || []; bk.versions.push(v); }
+      });
+      if (lv.likes && me && lv.likes[me]) { bk.likes = bk.likes || {}; if (!bk.likes[me]) bk.likes[me] = lv.likes[me]; }
+    });
+    VARIANTS = base;
   }
   function applyRemoteAnno(remote) {
+    const base = remote ? JSON.parse(JSON.stringify(remote)) : {};
     let local = {}; try { local = JSON.parse(localStorage.getItem('sim_annotations_local') || '{}'); } catch (e) {}
-    const base = remote || {};
-    ANNOTATIONS = Object.assign({}, local, base);
-    for (const k of Object.keys(local)) {
-      if (Array.isArray(base[k]) && Array.isArray(local[k])) { const byId = {}; base[k].forEach((a) => { byId[a.id] = a; }); local[k].forEach((a) => { if (!byId[a.id]) byId[a.id] = a; }); ANNOTATIONS[k] = Object.values(byId); }
-    }
+    const me = author();
+    Object.keys(local).forEach((k) => {
+      (local[k] || []).forEach((a) => {
+        if (a.author !== me) return; // jamais les annotations des autres : le distant fait foi
+        base[k] = base[k] || [];
+        if (!base[k].some((x) => x.id === a.id)) base[k].push(a);
+      });
+    });
+    ANNOTATIONS = base;
   }
   let _lastV = null, _lastA = null;
   async function poll() {
@@ -1011,7 +1002,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
       let changed = false;
       if (rv !== null) { const h = JSON.stringify(rv); if (_lastV !== null && h !== _lastV) { applyRemoteVariants(rv); changed = true; } _lastV = h; }
       if (ra !== null) { const h = JSON.stringify(ra); if (_lastA !== null && h !== _lastA) { applyRemoteAnno(ra); changed = true; } _lastA = h; }
-      if (changed && window.__simRoute) window.__simRoute();
+      if (changed && window.__simRoute) { const y = window.scrollY; window.__simRoute(); window.scrollTo(0, y); } // ne pas remonter en haut
     } catch (e) {}
   }
   setInterval(poll, 15000);
