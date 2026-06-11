@@ -180,12 +180,22 @@ SORTIE : réponds UNIQUEMENT par le texte du fragment, en minuscules, sans titre
   // ── chargement des variantes partagées ──────────────────────────
   // priorité au Worker (lecture immédiate depuis GitHub) ; repli sur le fichier Pages
   async function loadVariants() {
-    let data = null;
-    if (PROXY_URL) data = await fetchRemoteVariants();
-    if (!data) {
-      try { const r = await fetch('data/variants.json?_=' + Date.now(), { cache: 'no-store' }); if (r.ok) data = await r.json(); } catch (e) {}
+    let remote = null;
+    if (PROXY_URL) remote = await fetchRemoteVariants();
+    if (remote === null) {
+      try { const r = await fetch('data/variants.json?_=' + Date.now(), { cache: 'no-store' }); if (r.ok) remote = await r.json(); } catch (e) {}
     }
-    VARIANTS = data || {};
+    let local = {};
+    try { local = JSON.parse(localStorage.getItem('sim_variants_local') || '{}'); } catch (e) {}
+    const base = remote || {};
+    // le distant fait foi, mais on ne perd JAMAIS ce qui n'a pas encore été synchronisé (likes en local)
+    VARIANTS = Object.assign({}, local, base);
+    for (const k of Object.keys(local)) {
+      if (base[k] && local[k] && local[k].likes) {
+        VARIANTS[k] = Object.assign({}, base[k]);
+        VARIANTS[k].likes = Object.assign({}, local[k].likes, base[k].likes); // union des likes
+      }
+    }
     loaded = true;
     if (window.__simRoute) window.__simRoute();
   }
@@ -649,6 +659,24 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
         <a class="dash-open" href="#f-${t.n}">→ ouvrir &amp; éditer</a>
       </article>`;
     }).join('');
+    // ma collection : les fragments que J'AI aimés (mes coups de cœur)
+    const myLiked = (window.THESES || []).filter((t) => likesOf(t.n)[me]).sort((a, b) => a.n - b.n);
+    const collHTML = myLiked.length
+      ? myLiked.map((t) => {
+          const meta = chMeta(t.chapitre);
+          return `<article class="dash-row">
+            <div class="dash-head">
+              <a class="dash-n" href="#f-${t.n}">fragment ${fragNo(t.n)}</a>
+              <span class="dash-ch">ch.${String(t.chapitre).padStart(2, '0')} · ${esc(meta ? meta.titre : '')}</span>
+              <span class="dash-info">♥ aimé le ${fmtDate(likesOf(t.n)[me])}</span>
+            </div>
+            <div class="dash-text">${renderFrag(currentText(t.n))}</div>
+            <a class="dash-open" href="#f-${t.n}">→ ouvrir</a>
+          </article>`;
+        }).join('')
+      : '<p class="dash-empty">tu n\'as encore liké aucun fragment — clique le ♥ sur ceux que tu veux garder dans ta collection.</p>';
+
+    // les plus aimés par toute l'équipe (classement global)
     const liked = (window.THESES || []).map((t) => ({ t, c: likeCount(t.n), who: Object.keys(likesOf(t.n)) }))
       .filter((x) => x.c > 0).sort((a, b) => b.c - a.c).slice(0, 30);
     const likedHTML = liked.length
@@ -658,14 +686,18 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
           <span class="liked-txt">${esc(currentText(x.t.n).slice(0, 90))}…</span>
           <span class="liked-who">${esc(x.who.join(' · '))}</span>
         </a>`).join('')
-      : '<p class="dash-empty">aucun fragment aimé pour l\'instant — clique le ♥ sur un fragment à préserver.</p>';
+      : '<p class="dash-empty">aucun fragment aimé pour l\'instant.</p>';
     contentEl.innerHTML = `<header class="ch-head">
         <div class="label">god mode · ${esc(me)}</div>
         <h1>Dashboard</h1>
-        <div class="sub">ce que l'équipe préfère, et ce que tu as modifié.</div>
+        <div class="sub">ta collection, ce que l'équipe préfère, et ce que tu as modifié.</div>
       </header>
       <section class="dash-section">
-        <div class="dash-sec-label">♥ les plus aimés</div>
+        <div class="dash-sec-label">♥ ma collection — ${myLiked.length}</div>
+        ${collHTML}
+      </section>
+      <section class="dash-section">
+        <div class="dash-sec-label">♥ les plus aimés (équipe)</div>
         ${likedHTML}
       </section>
       <section class="dash-section">
