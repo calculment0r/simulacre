@@ -49,7 +49,7 @@
   function renderSidebar(activeCh) {
     const chips = CH.map(
       (c) => `
-      <li><a href="#ch-${c.ch}" class="${c.ch === activeCh ? 'active' : ''}" data-ch="${c.ch}">
+      <li><a href="#ch-${c.ch}" class="${c.ch === activeCh ? 'active' : ''}" data-ch="${c.ch}" title="${esc(c.logline || '')}">
         <span class="num">${pad(c.ch)}</span>
         <span class="nm">${esc(c.titre)}</span>
         <span class="rg">${c.min}–${c.max}</span>

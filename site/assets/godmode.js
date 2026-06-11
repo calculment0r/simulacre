@@ -727,6 +727,7 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
         `</div><div class="anno-msg">${esc(a.message)}</div>`;
       const del = annoTip.querySelector('.anno-del');
       if (del) del.onclick = () => removeAnnotation(n, a.id);
+      annoTip.style.borderLeft = '3px solid ' + (a.color || userColor(a.author));
       const r = mark.getBoundingClientRect();
       annoTip.style.display = 'block';
       annoTip.style.top = window.scrollY + r.bottom + 8 + 'px';
@@ -781,73 +782,93 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
       .sort((a, b) => a.n - b.n);
   }
 
+  function allComments() {
+    const out = [];
+    Object.keys(ANNOTATIONS).forEach((n) => (ANNOTATIONS[n] || []).forEach((a) => out.push(Object.assign({ n: +n }, a))));
+    return out.sort((x, y) => (x.ts || 0) - (y.ts || 0));
+  }
+
   function renderDashboard(contentEl) {
     const me = author();
+    const myCol = userColor(me);
     const mine = myFragments();
-    const rows = mine.map((t) => {
-      const e = VARIANTS[t.n];
-      const myV = e.versions.filter((v) => v.author === me);
-      const last = myV.reduce((m, v) => (!m || v.ts > m.ts ? v : m), null);
+
+    // ── carrousel auto des fragments modifiés ──
+    const cards = mine.map((t) => {
       const meta = chMeta(t.chapitre);
-      const activeId = activeIdOf(t.n);
-      const activeV = e.versions.find((v) => v.id === activeId);
-      const inFil = activeId !== 'orig' && activeV && activeV.author === me;
-      return `<article class="dash-row">
-        <div class="dash-head">
-          <a class="dash-n" href="#f-${t.n}">fragment ${fragNo(t.n)}</a>
-          <span class="dash-ch">ch.${String(t.chapitre).padStart(2, '0')} · ${esc(meta ? meta.titre : '')}</span>
-          <span class="dash-info">${myV.length} version${myV.length > 1 ? 's' : ''}${last ? ' · ' + fmtDate(last.ts) : ''}${inFil ? ' · <b>dans le fil</b>' : ''}</span>
-        </div>
-        <div class="dash-text">${renderFrag(currentText(t.n))}</div>
-        <a class="dash-open" href="#f-${t.n}">→ ouvrir &amp; éditer</a>
-      </article>`;
-    }).join('');
-    // ma collection : les fragments que J'AI aimés (mes coups de cœur)
+      return `<a class="dash-card" href="#f-${t.n}">
+        <div class="dc-n">fragment ${fragNo(t.n)}</div>
+        <div class="dc-ch">ch.${String(t.chapitre).padStart(2, '0')} · ${esc(meta ? meta.titre : '')}</div>
+        <div class="dc-txt">${esc(currentText(t.n).slice(0, 170))}…</div>
+      </a>`;
+    });
+    const carousel = mine.length
+      ? `<div class="dash-carousel"><div class="dash-track">${cards.join('')}${cards.join('')}</div></div>`
+      : '<p class="dash-empty">tu n\'as encore modifié aucun fragment. ouvre-en un, régénère ou édite, valide.</p>';
+
+    // ── commentaires (toute l'équipe), chronologiques, signés couleur ──
+    const comments = allComments();
+    const commentsHTML = comments.length
+      ? comments.map((c) => {
+          const col = c.color || userColor(c.author);
+          const meta = chMeta((thesisOf(c.n) || {}).chapitre);
+          return `<a class="cmt-row" href="#f-${c.n}" style="--c:${col}">
+            <div class="cmt-head"><span class="cmt-who" style="color:${col}">${esc(c.author || '?')}</span>
+              <span class="cmt-frag">frag ${fragNo(c.n)}${meta ? ' · ' + esc(meta.titre) : ''}</span>
+              <span class="cmt-date">${esc(fmtDate(c.ts))}</span></div>
+            <div class="cmt-quote">« ${esc(c.text)} »</div>
+            <div class="cmt-msg">${esc(c.message)}</div>
+          </a>`;
+        }).join('')
+      : '<p class="dash-empty">aucun commentaire. sélectionne du texte dans un fragment et appuie sur C.</p>';
+
+    // ── mes likes en accordéons (par numéro) ──
     const myLiked = (window.THESES || []).filter((t) => likesOf(t.n)[me]).sort((a, b) => a.n - b.n);
-    const collHTML = myLiked.length
+    const likesHTML = myLiked.length
       ? myLiked.map((t) => {
           const meta = chMeta(t.chapitre);
-          return `<article class="dash-row">
-            <div class="dash-head">
-              <a class="dash-n" href="#f-${t.n}">fragment ${fragNo(t.n)}</a>
-              <span class="dash-ch">ch.${String(t.chapitre).padStart(2, '0')} · ${esc(meta ? meta.titre : '')}</span>
-              <span class="dash-info">♥ aimé le ${fmtDate(likesOf(t.n)[me])}</span>
+          return `<div class="like-acc">
+            <button class="like-acc-head">
+              <span class="la-n">${fragNo(t.n)}</span>
+              <span class="la-snippet">${esc(currentText(t.n).slice(0, 120))}…</span>
+              <span class="la-ch">ch.${String(t.chapitre).padStart(2, '0')}</span>
+              <span class="la-caret">▸</span>
+            </button>
+            <div class="like-acc-body">
+              <div class="la-full">${renderFrag(currentText(t.n))}</div>
+              <a class="la-voir" href="#f-${t.n}">→ voir dans le fil</a>
             </div>
-            <div class="dash-text">${renderFrag(currentText(t.n))}</div>
-            <a class="dash-open" href="#f-${t.n}">→ ouvrir</a>
-          </article>`;
+          </div>`;
         }).join('')
-      : '<p class="dash-empty">tu n\'as encore liké aucun fragment — clique le ♥ sur ceux que tu veux garder dans ta collection.</p>';
+      : '<p class="dash-empty">aucun like — clique le ♥ sur les fragments que tu veux garder.</p>';
 
-    // les plus aimés par toute l'équipe (classement global)
-    const liked = (window.THESES || []).map((t) => ({ t, c: likeCount(t.n), who: Object.keys(likesOf(t.n)) }))
-      .filter((x) => x.c > 0).sort((a, b) => b.c - a.c).slice(0, 30);
-    const likedHTML = liked.length
-      ? liked.map((x) => `<a class="liked-row" href="#f-${x.t.n}">
-          <span class="liked-hearts">♥ ${x.c}</span>
-          <span class="liked-n">${fragNo(x.t.n)}</span>
-          <span class="liked-txt">${esc(currentText(x.t.n).slice(0, 90))}…</span>
-          <span class="liked-who">${esc(x.who.join(' · '))}</span>
-        </a>`).join('')
-      : '<p class="dash-empty">aucun fragment aimé pour l\'instant.</p>';
     contentEl.innerHTML = `<header class="ch-head">
-        <div class="label">god mode · ${esc(me)}</div>
+        <div class="dash-presence" id="dashPresence"></div>
+        <div class="label">god mode · <span style="color:${myCol}">${esc(me)}</span></div>
         <h1>Dashboard</h1>
-        <div class="sub">ta collection, ce que l'équipe préfère, et ce que tu as modifié.</div>
+        <div class="sub">tes fragments en cours, les commentaires de l'équipe, et ta collection.</div>
       </header>
       <section class="dash-section">
+        <div class="dash-sec-label" style="color:${myCol}">▸ tes fragments modifiés — ${mine.length}</div>
+        ${carousel}
+      </section>
+      <section class="dash-section">
+        <div class="dash-sec-label">▸ commentaires — ${comments.length}</div>
+        ${commentsHTML}
+      </section>
+      <section class="dash-section">
         <div class="dash-sec-label">♥ ma collection — ${myLiked.length}</div>
-        ${collHTML}
-      </section>
-      <section class="dash-section">
-        <div class="dash-sec-label">♥ les plus aimés (équipe)</div>
-        ${likedHTML}
-      </section>
-      <section class="dash-section">
-        <div class="dash-sec-label">mes fragments — ${mine.length}</div>
-        ${mine.length ? rows : '<p class="dash-empty">tu n\'as encore modifié aucun fragment. ouvre-en un, régénère ou édite, valide — il apparaîtra ici.</p>'}
+        ${likesHTML}
       </section>`;
+
+    contentEl.querySelectorAll('.like-acc-head').forEach((h) =>
+      h.addEventListener('click', () => h.parentElement.classList.toggle('open'))
+    );
+    renderPresence();
   }
+
+  // présence (qui est connecté) — branché plus tard via Cloudflare KV
+  function renderPresence() { /* slot #dashPresence : vide tant qu'aucun backend de présence */ }
 
   // ════════════════ SIDEBAR : bouton + réglages ═══════════════════
   function onRenderSidebar(sidebarEl) {
@@ -905,8 +926,11 @@ Donne la phrase de méta-restitution (une seule phrase, simple et claire).`;
     inp.focus();
     const go = () => {
       const c = inp.value.trim();
-      if (USERS[c]) { LS.code = c; m.close(); if (window.__simRoute) window.__simRoute(); }
-      else m.el.querySelector('#gmErr').textContent = 'mot de passe invalide';
+      if (USERS[c]) {
+        LS.code = c; m.close();
+        loadVariants(); loadAnnotations(); // récupère les likes/commentaires des autres
+        if (window.__simRoute) window.__simRoute();
+      } else m.el.querySelector('#gmErr').textContent = 'mot de passe invalide';
     };
     m.el.querySelector('#gmOk').onclick = go;
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });

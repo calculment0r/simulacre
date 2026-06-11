@@ -715,3 +715,53 @@ mark.anno { color: inherit; padding: 0 1px; border-radius: 1px; cursor: help; }
 .anno-del:hover { color: var(--red); border-color: var(--red); }
 .anno-msg { font-family: var(--serif); font-size: 16px; line-height: 1.45; color: var(--text); margin-top: 9px; }
 .anno-sel { border-left: 2px solid var(--accent); padding: 8px 14px; margin: 0 0 14px; font-family: var(--serif); font-style: italic; color: var(--muted); font-size: 15px; line-height: 1.45; }
+
+/* ════════════ DASHBOARD v2 + couleurs user ════════════ */
+.gm-modal { border-top: 3px solid var(--god-color, var(--accent)); }
+.gm-primary { background: var(--god-color, var(--accent)); }
+.anno-sel { border-left-color: var(--god-color, var(--accent)); }
+
+.ch-head { position: relative; }
+.dash-presence { position: absolute; top: 0; right: 0; display: flex; gap: 14px; }
+.pres-user { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-transform: uppercase; }
+.pres-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* carrousel auto des fragments modifiés */
+.dash-carousel { overflow: hidden; position: relative; margin: 6px 0; }
+.dash-carousel::before, .dash-carousel::after { content: ''; position: absolute; top: 0; bottom: 0; width: 60px; z-index: 2; pointer-events: none; }
+.dash-carousel::before { left: 0; background: linear-gradient(90deg, var(--bg), transparent); }
+.dash-carousel::after { right: 0; background: linear-gradient(270deg, var(--bg), transparent); }
+.dash-track { display: flex; gap: 18px; width: max-content; animation: dashmarquee 70s linear infinite; }
+.dash-carousel:hover .dash-track { animation-play-state: paused; }
+@keyframes dashmarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.dash-card { flex: 0 0 300px; text-decoration: none; background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--god-color, var(--accent)); padding: 18px 20px; transition: background .18s; }
+.dash-card:hover { background: var(--bg3); }
+.dc-n { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: .06em; }
+.dc-ch { font-family: var(--mono); font-size: 9px; color: var(--dim); letter-spacing: .08em; margin: 4px 0 10px; text-transform: uppercase; }
+.dc-txt { font-family: var(--serif); font-size: 16px; line-height: 1.4; color: var(--text); }
+
+/* commentaires */
+.cmt-row { display: block; text-decoration: none; padding: 16px 0 16px 16px; border-left: 2px solid var(--c, var(--border2)); border-bottom: 1px solid var(--border); transition: background .15s; }
+.cmt-row:hover { background: var(--bg2); }
+.cmt-head { font-family: var(--mono); font-size: 10px; letter-spacing: .05em; color: var(--dim); display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.cmt-who { font-weight: 500; text-transform: uppercase; letter-spacing: .08em; }
+.cmt-frag { color: var(--muted); }
+.cmt-date { margin-left: auto; }
+.cmt-quote { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--muted); margin: 8px 0 6px; }
+.cmt-msg { font-family: var(--serif); font-size: 17px; line-height: 1.45; color: var(--text); }
+
+/* likes en accordéons */
+.like-acc { border-bottom: 1px solid var(--border); }
+.like-acc-head { width: 100%; display: flex; align-items: center; gap: 14px; background: transparent; border: none; cursor: pointer; padding: 14px 4px; text-align: left; color: inherit; }
+.like-acc-head:hover { background: var(--bg2); }
+.la-n { font-family: var(--mono); font-size: 12px; color: var(--accent); flex: 0 0 auto; }
+.la-snippet { font-family: var(--serif); font-size: 16px; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.la-ch { font-family: var(--mono); font-size: 9px; color: var(--dim); text-transform: uppercase; letter-spacing: .08em; flex: 0 0 auto; }
+.la-caret { font-family: var(--mono); color: var(--dim); transition: transform .18s; flex: 0 0 auto; }
+.like-acc.open .la-caret { transform: rotate(90deg); }
+.like-acc.open .la-snippet { white-space: normal; }
+.like-acc-body { display: none; padding: 6px 4px 22px; }
+.like-acc.open .like-acc-body { display: block; }
+.la-full { font-family: var(--serif); font-size: 19px; line-height: 1.5; color: var(--text); margin-bottom: 16px; }
+.la-voir { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-decoration: none; border: 1px solid var(--border2); padding: 8px 14px; transition: all .18s; display: inline-block; }
+.la-voir:hover { color: var(--accent); border-color: var(--accent); }
