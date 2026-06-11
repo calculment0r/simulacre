@@ -22,7 +22,6 @@
   const USERS = {
     '007': 'Nico',
     '666': 'Eric',
-    'eric007': 'Eric',
     '013': 'Sabrina',
   };
 
