@@ -1,7 +1,15 @@
 {
  "1": {
-  "activeId": "orig",
-  "versions": []
+  "activeId": "v_35uzlt_1",
+  "versions": [
+   {
+    "id": "v_35uzlt_1",
+    "fragment": "toute la vie des sociétés où règnent les conditions actuelles de production s'annonce comme une immense accumulation de Simulacre. ce qui était directement pensé, fait, voulu, s'est retiré dans ce qui est produit à sa place — non comme représentation qui renvoie encore à quelque chose, mais comme opération qui s'est substituée à la faculté même. la représentation maintenait un écart, même falsifié, entre le monde et son image. le Simulacre a supprimé l'écart : il n'y a plus de monde requis derrière la réponse. Et c'est ok",
+    "author": "Sabrina",
+    "ts": 1781191242433,
+    "origin": "manual"
+   }
+  ]
  },
  "2": {
   "activeId": "orig",
