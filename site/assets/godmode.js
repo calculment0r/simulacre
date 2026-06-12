@@ -23,9 +23,10 @@
     '007': 'Nico',
     '666': 'Eric',
     '013': 'Sabrina',
+    '015': 'Pilou',
   };
   // couleur de signature de chaque contributeur (cadre, surlignages d'annotation)
-  const USER_COLORS = { Nico: '#c9ff3c', Eric: '#ff4455', Sabrina: '#4499ff' }; // vert · rouge · bleu
+  const USER_COLORS = { Nico: '#c9ff3c', Eric: '#ff4455', Sabrina: '#4499ff', Pilou: '#9966ff' }; // vert · rouge · bleu · violet
   function userColor(name) { return USER_COLORS[name] || '#c9ff3c'; }
 
   // ── opérateurs (méthode §1) → sliders ───────────────────────────
