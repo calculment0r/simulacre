@@ -19,6 +19,7 @@
     esc(s)
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/([Ss]écessions?)/g, '<span class="hl-sec">$1</span>') // mot-maître, à l'accent de la charte
       .replace(/«\s/g, '«&nbsp;')
       .replace(/\s([?!:;»])/g, '&nbsp;$1');
   const paras = (arr) => (arr || []).map((p) => `<p>${md(p)}</p>`).join('');

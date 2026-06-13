@@ -7,6 +7,9 @@
 /* mesure de ligne confortable (~66-72 caractères) */
 .kub .container { max-width: 720px; }
 
+/* « sécession » — mot-maître retourné de l'adversaire : à l'accent de la charte */
+.hl-sec { color: var(--accent); }
+
 /* ── sidebar : sous-titre nautique sous chaque bifurcation ──────── */
 .chapters a .nm small {
   display: block;
