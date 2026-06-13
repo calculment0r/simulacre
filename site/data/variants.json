@@ -110,6 +110,18 @@
    }
   ]
  },
+ "129": {
+  "activeId": "v_5rbtdf_1",
+  "versions": [
+   {
+    "id": "v_5rbtdf_1",
+    "fragment": "entre l’instant où le corpus se ferme et celui où on l’interroge, des gens sont morts, des régimes sont tombés, des mots ont changé de sens. le modèle l’ignore, et l’ignore avec aplomb. il décrit un présent révolu, et le décrit d’autant mieux qu’il le croit encore là. l’assurance est intacte exactement où l’information s’est arrêtée.",
+    "author": "Nico",
+    "ts": 1781348231796,
+    "origin": "manual"
+   }
+  ]
+ },
  "147": {
   "activeId": "orig",
   "versions": [
