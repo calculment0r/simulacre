@@ -62,6 +62,24 @@
    }
   ]
  },
+ "126": {
+  "activeId": "orig",
+  "versions": [
+   {
+    "id": "v_5qabyk_4",
+    "fragment": "le modèle ne traverse aucune durée. chaque inférence régénère le même présent, sans rien retenir de la précédente, sans rien préparer pour la suivante. il ne vieillit pas, il ne se souvient pas, il ne mûrit pas : il recommence. ce qui te répond n'est pas un vivant qui dure, mais un état figé que rien n'a entamé — un passé compressé qui rejoue son présent à l'identique. tu prends pour un interlocuteur ce qui n'a aucune épaisseur de temps : première dépossession, en miroir de celle de ta pensée. la société du simulacre prend ce rythme pour le sien. un présent qui se refait le même, indéfiniment, et n'accumule jamais rien qu'on pourrait appeler histoire. ce qui ne dure pas ne meurt pas non plus.",
+    "author": "Nico",
+    "ts": 1781346482956,
+    "tweak": "en 150 character : Ce qu’il prend pour un interlocuteur vivant est un état figé : première dépossession temporelle, en miroir de la dépossession cognitive",
+    "weights": {
+     "Debord": 15,
+     "Meillassoux": 92,
+     "Garcia": 92
+    },
+    "model": "claude-opus-4-8"
+   }
+  ]
+ },
  "147": {
   "activeId": "orig",
   "versions": [
