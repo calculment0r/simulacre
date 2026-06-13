@@ -21,9 +21,22 @@
 }
 .chapters a.active .nm small { color: var(--muted); }
 
-/* item « à venir » (le #4) : discret, non cliquable visuellement */
-.chapters a.soon { opacity: 0.6; }
-.chapters a.soon .rg { color: var(--amber); }
+/* séparateur de nav : « au-delà de la passe » (avant la coda) */
+.chapters .nav-sep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 4px 8px;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.chapters .nav-sep::before,
+.chapters .nav-sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.chapters a.coda-nav .num { font-size: 13px; color: var(--dim); }
+.chapters a.coda-nav.active .num { color: var(--accentDim); }
 
 /* mini-sommaire latéral de la bifurcation active (I.1, I.2…) */
 .subnav {
@@ -202,8 +215,6 @@
   color: var(--muted);
   margin-top: 8px;
 }
-.toc a.soon .toc-nm { color: var(--muted); }
-.toc a.soon .toc-sub { color: var(--amber); }
 
 .cover-enter {
   margin-top: 44px;
@@ -220,45 +231,89 @@
 }
 .cover-enter:hover { background: var(--accent); color: #0a0a0c; }
 
-/* ════════════ « ENFIN DEHORS » (#4 — à venir) ════════════ */
-.dehors { padding-top: 8px; }
-.dehors .d-status {
+/* ════════════ CODA — « ENFIN DEHORS » (au-delà de la passe) ════════════
+   On a quitté l'atlas : page seule, sans la barre latérale, registre épistolaire
+   réchauffé (interligne plus ample, accent en sourdine). Thème Oblivion conservé. */
+body.coda-view .sidebar { display: none; }
+body.coda-view .menu-btn { display: none; }
+body.coda-view .reader { margin-left: 0; }
+body.coda-view .container { max-width: 700px; padding-top: 60px; }
+
+.coda-back {
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.2em;
+  font-size: 11px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--amber);
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 28px;
+  color: var(--dim);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 70px;
+  transition: color 0.18s;
 }
-.dehors .d-status::before {
-  content: '';
-  width: 6px; height: 6px;
-  background: var(--amber);
-  border-radius: 50%;
+.coda-back:hover { color: var(--muted); }
+
+/* le seuil : l'ellipse — un vrai vide, puis la liaison, centrée et sobre */
+.coda-seuil { text-align: center; padding: 10px 0 70px; }
+.coda-void {
+  width: 1px; height: 90px;
+  margin: 0 auto 56px;
+  background: linear-gradient(var(--border2), transparent);
 }
-.dehors h1 {
+.seuil-prose p {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.85;
+  color: var(--muted);
+  max-width: 540px;
+  margin: 0 auto 20px;
+}
+.seuil-prose p:first-child { color: var(--text); font-size: 21px; }
+.seuil-prose p:last-child { margin-bottom: 0; }
+
+/* la lettre : objet distinct, plus chaud que la carte */
+.coda-letter {
+  border-top: 1px solid var(--border);
+  padding-top: 72px;
+}
+.coda-letter h1 {
   font-family: var(--serif);
   font-style: italic;
   font-weight: 400;
-  font-size: clamp(36px, 6vw, 60px);
-  line-height: 1.04;
+  font-size: clamp(38px, 6vw, 60px);
+  line-height: 1.02;
   letter-spacing: -0.03em;
   color: var(--text);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
-.dehors .d-num {
+.coda-sub {
   font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  color: var(--dim);
-  margin-bottom: 40px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--accentDim);          /* accent en sourdine */
+  margin-bottom: 50px;
+}
+.letter-prose { max-width: 624px; }
+.letter-prose p {
+  font-size: 20px;
+  line-height: 1.95;
+  color: var(--text);
+  margin-bottom: 26px;
+}
+.letter-prose p:last-child {        /* l'envoi : « Nous t'attendons dehors. » */
+  font-style: italic;
+  margin-top: 8px;
 }
 
-/* le bouton menu mobile ne doit pas masquer le titre du seuil */
+/* le bouton menu mobile ne doit pas masquer le titre du seuil/cover */
 @media (max-width: 920px) {
   .cover .cover-kicker { padding-right: 52px; }
-  .dehors .d-status { padding-right: 52px; }
+}
+@media (max-width: 600px) {
+  .coda-back { margin-bottom: 44px; }
+  .coda-seuil { padding: 4px 0 54px; }
+  .coda-void { height: 60px; margin-bottom: 40px; }
+  .seuil-prose p:first-child { font-size: 19px; }
+  .coda-letter { padding-top: 52px; }
+  .letter-prose p { font-size: 18px; line-height: 1.9; }
 }

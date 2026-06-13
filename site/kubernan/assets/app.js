@@ -30,7 +30,7 @@
     const h = location.hash.replace(/^#/, '');
     if (!h || h === 'seuil') return { view: 'seuil' };
     if (h === 'preface') return { view: 'preface' };
-    if (h === 'dehors') return { view: 'dehors' };
+    if (h === 'coda' || h === 'dehors') return { view: 'coda' };
     let m;
     if ((m = h.match(/^b-(\d+)(?:-(\d+|c))?$/))) {
       const n = +m[1];
@@ -39,14 +39,10 @@
     return { view: 'seuil' };
   }
 
-  // ordre de lecture pour prev / suite
-  const ORDER = ['seuil', 'preface', 'b-1', 'b-2', 'b-3', 'b-4', 'dehors'];
-  const hashOf = (r) =>
-    r.view === 'bif' ? `#b-${r.n}` : `#${r.view === 'seuil' ? 'seuil' : r.view}`;
   const labelOf = (key) => {
     if (key === 'seuil') return 'le seuil';
     if (key === 'preface') return 'Préface';
-    if (key === 'dehors') return 'Enfin dehors';
+    if (key === 'coda') return 'Enfin dehors';
     const b = bifByN(+key.split('-')[1]);
     return b ? b.titre : key;
   };
@@ -89,11 +85,11 @@
       </a>${sub}</li>`;
     }).join('');
 
-    const dehorsLi = `
-      <li><a href="#dehors" class="soon ${route.view === 'dehors' ? 'active' : ''}">
-        <span class="num">#4</span>
-        <span class="nm">Enfin dehors</span>
-        <span class="rg">à venir</span>
+    const codaLi = `
+      <li class="nav-sep"><span>au-delà de la passe</span></li>
+      <li><a href="#coda" class="coda-nav ${route.view === 'coda' ? 'active' : ''}">
+        <span class="num">∮</span>
+        <span class="nm">Enfin dehors<small>la coda · une lettre</small></span>
       </a></li>`;
 
     $('#sidebar').innerHTML = `
@@ -106,7 +102,7 @@
 
       <nav>
         <div class="nav-label">La traversée</div>
-        <ul class="chapters">${prefLi}${bifLis}${dehorsLi}</ul>
+        <ul class="chapters">${prefLi}${bifLis}${codaLi}</ul>
       </nav>
 
       <div class="side-foot">
@@ -125,7 +121,7 @@
             b.titre
           )}</span><span class="toc-sub">${esc(b.sous_titre)}</span></a>`
       ).join('') +
-      `<a href="#dehors" class="soon"><span class="toc-num">#4</span><span class="toc-nm">Enfin dehors</span><span class="toc-sub">à venir — livre distinct</span></a>`;
+      `<a href="#coda"><span class="toc-num">∮</span><span class="toc-nm">Enfin dehors</span><span class="toc-sub">la coda — lettre, de l'autre côté de la passe</span></a>`;
 
     return `<section class="cover">
       <div class="cover-kicker">${esc(META.serie || '')}</div>
@@ -180,8 +176,8 @@
           <span class="suite-t">${esc(nextBif.titre)} <span class="arr">→</span></span>
         </a>`;
     } else {
-      suite = `<a class="suite" href="#dehors">
-          <span class="suite-k">Quatrième bifurcation · livre distinct</span>
+      suite = `<a class="suite" href="#coda">
+          <span class="suite-k">La coda · au-delà de la passe</span>
           <span class="suite-t">Enfin dehors <span class="arr">→</span></span>
         </a>`;
     }
@@ -203,15 +199,22 @@
       </nav>`;
   }
 
-  function dehorsHTML() {
-    const d = K.dehors || { paras: [] };
-    return `<section class="dehors">
-        <div class="d-status">${esc(d.statut || 'à venir')}</div>
-        <h1>${esc(d.titre || 'Enfin dehors')}</h1>
-        <div class="d-num">${esc(d.numero || '#4')} · quatrième bifurcation de la traversée</div>
-        <div class="prose">${paras(d.paras)}</div>
+  function codaHTML() {
+    const c = K.coda || { seuil: [], lettre: { paras: [] } };
+    const L = c.lettre || { paras: [] };
+    return `<section class="coda">
+        <a class="coda-back" href="#b-4">← retour à la carte</a>
+        <div class="coda-seuil">
+          <div class="coda-void" aria-hidden="true"></div>
+          <div class="prose seuil-prose">${paras(c.seuil)}</div>
+        </div>
+        <article class="coda-letter">
+          <h1>${esc(L.titre || 'Enfin dehors')}</h1>
+          <div class="coda-sub">${esc(L.sous_titre || '')}</div>
+          <div class="prose letter-prose">${paras(L.paras)}</div>
+        </article>
         <nav class="ch-foot">
-          <a class="prev" href="#b-4"><span class="dir">← précédent</span>La Passe</a>
+          <a class="prev" href="#b-4"><span class="dir">← retour</span>Kubernân — la carte</a>
         </nav>
       </section>`;
   }
@@ -247,12 +250,13 @@
     let html = '', titleSuffix = '';
     if (r.view === 'seuil') { html = seuilHTML(); titleSuffix = ''; }
     else if (r.view === 'preface') { html = prefaceHTML(); titleSuffix = ' — Préface'; }
-    else if (r.view === 'dehors') { html = dehorsHTML(); titleSuffix = ' — Enfin dehors'; }
+    else if (r.view === 'coda') { html = codaHTML(); titleSuffix = ' — Enfin dehors'; }
     else { const b = bifByN(r.n); html = bifHTML(b); titleSuffix = ` — ${b.roman}. ${b.titre}`; }
 
     $('#content').innerHTML = html;
     document.title = 'Kubernân, où sortir ?' + titleSuffix;
     document.body.classList.remove('nav-open');
+    document.body.classList.toggle('coda-view', r.view === 'coda'); // lettre immersive, sans sidebar
     wireSpy();
 
     // focus d'une section précise (#b-n-k ou #b-n-c) sinon haut de page

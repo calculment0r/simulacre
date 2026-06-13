@@ -41,17 +41,25 @@ for (const l of lines) {
 
 // ── découpe en blocs H2 (terminés par un autre ## ou une règle ---) ────
 // On collecte (heading, bodyLines[]) pour chaque ## , en ignorant le Sommaire.
+// La prose libre apparue APRÈS le premier ## (sans titre) est captée comme
+// bloc « __loose__ » : c'est le seuil de la coda (l'ellipse, sans titre).
 const blocks = [];
 let cur = null;
+let started = false;
 for (const line of lines) {
   const h2 = line.match(/^##\s+(.+?)\s*$/);
   if (h2) {
+    started = true;
     cur = { heading: h2[1].trim(), body: [] };
     blocks.push(cur);
     continue;
   }
   if (line.trim() === '---') { cur = null; continue; } // les règles ferment le bloc courant
-  if (cur) cur.body.push(line);
+  if (cur) { cur.body.push(line); continue; }
+  if (started && line.trim() !== '') {                 // prose libre = seuil de la coda
+    cur = { heading: '__loose__', body: [line] };
+    blocks.push(cur);
+  }
 }
 
 // texte d'un bloc → tableau de paragraphes (split sur lignes vides)
@@ -66,10 +74,24 @@ const toParas = (bodyLines) =>
 let preface = null;
 const bifs = []; // {n, roman, titre, sous_titre, intro:[], sections:[], conclusion:{bridge, paras}}
 let curBif = null;
+let codaSeuil = null;   // prose de liaison (l'ellipse, sans titre)
+let codaLettre = null;  // la lettre « Enfin dehors »
 
 for (const b of blocks) {
   const h = b.heading;
   if (/^Sommaire$/i.test(h)) continue;
+  // coda — seuil (prose libre) et lettre (## Enfin dehors)
+  if (h === '__loose__') {
+    codaSeuil = toParas(b.body);
+    continue;
+  }
+  if (/^Enfin dehors$/i.test(h)) {
+    const ps = toParas(b.body);
+    let sous_titre = '';
+    if (ps.length && /^\*.+\*$/.test(ps[0])) sous_titre = ps.shift().replace(/^\*|\*$/g, '').trim();
+    codaLettre = { titre: 'Enfin dehors', sous_titre, paras: ps };
+    continue;
+  }
   if (/^Préface$/i.test(h)) {
     preface = { id: 'preface', titre: 'Préface', paras: toParas(b.body) };
     continue;
@@ -102,7 +124,9 @@ for (const b of blocks) {
   }
   if ((m = h.match(reConcl))) {
     if (!curBif) throw new Error('conclusion hors bifurcation : ' + h);
-    curBif.conclusion = { bridge: m[1].trim(), paras: toParas(b.body) };
+    // le #4 est retiré : « Enfin dehors » est désormais la coda du livre
+    const bridge = m[1].trim().replace(/vers le #4 \(\*?Enfin dehors\*?\)/i, 'vers Enfin dehors');
+    curBif.conclusion = { bridge, paras: toParas(b.body) };
     continue;
   }
   console.warn('⚠ bloc non classé, ignoré :', h);
@@ -129,18 +153,15 @@ for (const bf of bifs) {
   );
 }
 
-// ── page « Enfin dehors » (#4) — à venir, registre séparé ──────────────
-const dehors = {
-  id: 'dehors',
-  titre: 'Enfin dehors',
-  numero: '#4',
-  statut: 'à venir',
-  paras: [
-    "Quatrième bifurcation de la traversée — un livre distinct, qui ne sera plus une carte.",
-    "Ce qui ne se démontre pas du dedans peut s'attester du dehors : non plus raisonné, mais raconté ; non plus au présent de qui cherche, mais depuis l'après de qui est arrivé. Une lettre, écrite d'ailleurs, par quelqu'un qui a franchi la passe et se retourne pour dire, simplement, qu'on y est.",
-    "Ce que nous appelons ici une hypothèse, il l'appellera un souvenir.",
-  ],
+// ── coda « Enfin dehors » — au-delà de la passe (même livre) ───────────
+if (!codaSeuil) console.warn('⚠ seuil de la coda introuvable');
+if (!codaLettre) throw new Error('lettre « Enfin dehors » introuvable');
+const coda = {
+  id: 'coda',
+  seuil: codaSeuil || [],
+  lettre: codaLettre,
 };
+report.push(`coda : ${coda.seuil.length} § seuil, lettre « ${codaLettre.titre} » (${codaLettre.paras.length} §)`);
 
 // ── sortie ─────────────────────────────────────────────────────────────
 const data = {
@@ -152,7 +173,7 @@ const data = {
   },
   preface,
   bifurcations: bifs,
-  dehors,
+  coda,
 };
 
 mkdirSync(OUTDIR, { recursive: true });
