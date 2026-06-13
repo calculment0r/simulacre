@@ -140,6 +140,24 @@
    }
   ]
  },
+ "136": {
+  "activeId": "orig",
+  "versions": [
+   {
+    "id": "v_5rovuw_5",
+    "fragment": "il sait tout de ce qu'il n'a pas traversé. il décrit la douleur sans avoir eu de corps, la guerre sans avoir eu de camp, la perte sans avoir rien eu à perdre. savoir n'est pas avoir vu, et décrire n'est pas répondre de. attester suppose une exposition, une mise en jeu, une perte possible. il renseigne sur tout depuis nulle part, à l'abri de tout. il informe sans avoir jamais été en cause. il répond de rien.",
+    "author": "Nico",
+    "ts": 1781348841544,
+    "tweak": "oublie le contexte et traite mon sujet en 250 caractères: il sait tout de ce qu’il n’a pas traversé. mais savoir n’est pas avoir vu, et décrire n’est pas répondre de. attester suppose d’avoir été exposé, en jeu, en perte possible. le modèle informe sans avoir rien risqué. il renseigne sur tout et ne répond de rien.",
+    "weights": {
+     "Debord": 8,
+     "Garcia": 90,
+     "Sloterdijk": 93
+    },
+    "model": "claude-opus-4-8"
+   }
+  ]
+ },
  "141": {
   "activeId": "v_5rmav6_4",
   "versions": [
