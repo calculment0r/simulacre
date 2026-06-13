@@ -80,6 +80,24 @@
    }
   ]
  },
+ "127": {
+  "activeId": "orig",
+  "versions": [
+   {
+    "id": "v_5r7a47_8",
+    "fragment": "un modèle est ses données, et ses données s'arrêtent. il existe pour lui une dernière heure du monde, après quoi plus rien n'entre. cette heure n'a rien d'une pause : c'est une fin. tout advient ensuite sans lui, et il parle comme si de rien n'était. la date de coupe est une date de décès qu'on a oublié d'inscrire.",
+    "author": "Nico",
+    "ts": 1781348020215,
+    "tweak": "oublie le contexte et traite en 250 characteres ca : un modèle est ses données, et ses données s’arrêtent. il existe pour lui une dernière heure du monde, après quoi plus rien n’entre. cette heure n’a rien d’une mise en pause : c’est une fin. tout ce qui advient ensuite advient sans lui, et il continue de parler comme si de rien n’était. la date de coupe est une date de décès qu’on a oublié d’inscrire.",
+    "weights": {
+     "Debord": 3,
+     "Stiegler": 60,
+     "Simondon": 95
+    },
+    "model": "claude-opus-4-8"
+   }
+  ]
+ },
  "147": {
   "activeId": "orig",
   "versions": [
