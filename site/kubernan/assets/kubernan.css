@@ -177,6 +177,16 @@
 /* la préface coule directement sous le titre */
 .cover-preface { border-top: 1px solid var(--border); padding-top: 50px; }
 
+/* signature de la préface : « — Focus » (le collectif se signe, à l'accent) */
+.sig {
+  margin-top: 36px;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.sig .concept { letter-spacing: 0.14em; }
+
 /* ════════════ CODA — « ENFIN DEHORS » (au-delà de la passe) ════════════
    On a quitté l'atlas : page seule, sans la barre latérale, registre épistolaire
    réchauffé (interligne plus ample, accent en sourdine). Thème Oblivion conservé. */
@@ -249,6 +259,16 @@ body.coda-view .container { max-width: 700px; padding-top: 60px; }
 .letter-prose p:last-child {        /* l'envoi : « Nous t'attendons dehors. » */
   font-style: italic;
   margin-top: 8px;
+}
+
+/* signature de la lettre : « — Nicolas » (la main qui écrit, registre chaud) */
+.coda-sig {
+  margin-top: 44px;
+  text-align: right;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--text);
 }
 
 /* le bouton menu mobile ne doit pas masquer le titre du seuil/cover */

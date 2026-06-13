@@ -19,22 +19,25 @@
   // mot entier ; jamais dans les titres (eux passent par esc(), pas md()).
   // classe de lettres sans lookbehind (compat. Safari) : on capture la
   // frontière de gauche et on la réémet.
-  const L = 'A-Za-zÀ-ÿ';
+  const LET = 'A-Za-zÀ-ÿ';
   // noyau : chaque occurrence
-  const RE_CORE = new RegExp(`(^|[^${L}])(Simulacre|Simulation|Focus|Grand Dehors|[Kk]ubernân)(?![${L}])`, 'g');
+  const RE_CORE = new RegExp(`(^|[^${LET}])(Simulacre|Simulation|Focus|Grand Dehors|[Kk]ubernân)(?![${LET}])`, 'g');
   // sécession : uniquement sur le chiasme (« sécession du calcul … »)
-  const RE_SECESSION = new RegExp(`(^|[^${L}])(sécession)(?= du calcul)`, 'g');
+  const RE_SECESSION = new RegExp(`(^|[^${LET}])(sécession)(?= du calcul)`, 'g');
+  // « sortir » : ciblé (« ne plus réformer la cité, en sortir »)
+  const RE_SORTIR = /(réformer la cité, en )(sortir)/g;
   // second cercle : première occurrence seulement (par passe de rendu)
   const SECOND = [
-    ['pleonexie', new RegExp(`(^|[^${L}])(pléonexie)(?![${L}])`)],
-    ['desencastrement', new RegExp(`(^|[^${L}])(désencastrement)(?![${L}])`)],
-    ['reencastrement', new RegExp(`(^|[^${L}])(ré-encastrement|ré-encastré)(?![${L}])`)],
+    ['pleonexie', new RegExp(`(^|[^${LET}])(pléonexie)(?![${LET}])`)],
+    ['desencastrement', new RegExp(`(^|[^${LET}])(désencastrement)(?![${LET}])`)],
+    ['reencastrement', new RegExp(`(^|[^${LET}])(ré-encastrement|ré-encastré)(?![${LET}])`)],
   ];
   const seenConcepts = new Set();
   const wrap = (pre, w) => `${pre}<span class="concept">${w}</span>`;
   const concepts = (t) => {
     t = t.replace(RE_CORE, (m, pre, w) => wrap(pre, w));
     t = t.replace(RE_SECESSION, (m, pre, w) => wrap(pre, w));
+    t = t.replace(RE_SORTIR, (m, pre, w) => wrap(pre, w));
     for (const [key, re] of SECOND) {
       if (seenConcepts.has(key)) continue;
       let hit = false;
@@ -150,6 +153,7 @@
         <h1>kubernân, <span class="lp">où sortir&nbsp;?</span></h1>
         <p class="cover-here">nous sommes ici</p>
         <div class="prose lead cover-preface">${paras(p.paras)}</div>
+        <div class="sig">— <span class="concept">Focus</span></div>
         <a class="suite" href="#b-1">
           <span class="suite-k">Première bifurcation</span>
           <span class="suite-t">L'Archipel <span class="arr">→</span></span>
@@ -219,6 +223,7 @@
           <h1>${esc(L.titre || 'Enfin dehors')}</h1>
           <div class="coda-sub">${esc(L.sous_titre || '')}</div>
           <div class="prose letter-prose">${paras(L.paras)}</div>
+          <div class="coda-sig">— Nicolas</div>
         </article>
         <nav class="ch-foot">
           <a class="prev" href="#b-4"><span class="dir">← retour</span>Kubernân — la carte</a>
