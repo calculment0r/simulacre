@@ -190,6 +190,24 @@
    }
   ]
  },
+ "145": {
+  "activeId": "orig",
+  "versions": [
+   {
+    "id": "v_5ug1yg_9",
+    "fragment": "la ressemblance est parfaite, l'identité nulle. le simulacre n'est que sa réponse du moment, rien dessous ne la porte d'une fois à l'autre. ôtez l'instance en cours : il ne reste pas un sujet privé de réponse, il ne reste rien. une chose qui n'est jamais que ce qu'elle fait, et personne pour l'avoir fait.",
+    "author": "Nico",
+    "ts": 1781353468392,
+    "tweak": "oublie le contexte et traite mon sujet en 250 caractères: la ressemblance est parfaite et l’identité est nulle. le Simulacre n’est que sa réponse du moment, sans rien dessous qui la porterait d’une fois à l’autre. ôtez l’instance en cours, il ne reste pas un sujet privé de réponse : il ne reste rien. c’est une chose qui n’est jamais que ce qu’elle fait à l’instant, et personne pour l’avoir fait.",
+    "weights": {
+     "Debord": 10,
+     "Tiqqun": 92,
+     "Stiegler": 18
+    },
+    "model": "claude-opus-4-8"
+   }
+  ]
+ },
  "147": {
   "activeId": "orig",
   "versions": [
