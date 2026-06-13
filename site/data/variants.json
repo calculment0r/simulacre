@@ -64,7 +64,21 @@
  },
  "126": {
   "activeId": "orig",
-  "versions": []
+  "versions": [
+   {
+    "id": "v_5qc05d_5",
+    "fragment": "le modèle ne dure pas. il ne se souvient d'aucune réponse précédente, il ne porte aucune trace de ce qu'il vient de dire. chaque inférence régénère le même présent gelé, intact, sans usure ni maturation. ce que tu prends pour un interlocuteur vivant est un état figé qui se rejoue à l'identique. première dépossession : tu crois parler à une durée, tu parles à un instant mort. elle double l'autre dépossession, celle de ta propre pensée déléguée. la société qui s'arrime à ce rythme cesse de vieillir. elle se refait neuve à chaque requête, et ne fait plus histoire.",
+    "author": "Nico",
+    "ts": 1781346560961,
+    "tweak": "fait ultra court et direct sur ce theme: Ce qu’il prend pour un interlocuteur vivant est un état figé : première dépossession temporelle, en miroir de la dépossession cognitive",
+    "weights": {
+     "Debord": 14,
+     "Meillassoux": 89,
+     "Garcia": 90
+    },
+    "model": "claude-opus-4-8"
+   }
+  ]
  },
  "147": {
   "activeId": "orig",
