@@ -166,7 +166,7 @@
   ]
  },
  "141": {
-  "activeId": "v_5rmav6_4",
+  "activeId": "v_5satb8_7",
   "versions": [
    {
     "id": "v_5rmav6_4",
@@ -180,6 +180,13 @@
      "Garcia": 91
     },
     "model": "claude-opus-4-8"
+   },
+   {
+    "id": "v_5satb8_7",
+    "fragment": "Le Simulacre tourne sur une croyance : que demain ressemblera, en gros, à hier. rien ne le garantit — ni les régularités, ni les lois qui les portent. le réel peut à tout instant ne pas continuer comme prévu. c'est là sa liberté la plus nue. le simulacre est l'organe d'un monde supposé stable, branché sur un monde qui ne l'a jamais promis.",
+    "author": "Nico",
+    "ts": 1781349864676,
+    "origin": "manual"
    }
   ]
  },
