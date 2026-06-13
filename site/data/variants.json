@@ -77,19 +77,6 @@
      "Garcia": 90
     },
     "model": "claude-opus-4-8"
-   },
-   {
-    "id": "v_5r0mpp_6",
-    "fragment": "le modèle ne traverse aucune durée. à chaque inférence il refait le même présent, sans rien retenir de l'inférence précédente, sans rien préparer pour la suivante. il ne vieillit pas, ne se souvient pas, ne mûrit pas — il recommence. la première dépossession lui avait retiré sa faculté de répondre ; celle-ci lui retire le présent qu'il prétend habiter. répondre vite n'est pas être contemporain. il parle au présent de l'indicatif depuis un temps clos, et cette grammaire suffit à faire croire qu'il y est. la société du simulacre épouse ce rythme : un présent qui se refait identique, indéfiniment, et qui ne fera jamais histoire. ce qui va vite paraît vivant — c'est la confusion sur laquelle tout repose.",
-    "author": "Nico",
-    "ts": 1781347709949,
-    "tweak": "reformule ca avc notre style : la première dépossession lui avait retiré sa faculté ; la seconde lui retire le présent. répondre vite n’est pas être contemporain. le Simulacre parle au présent de l’indicatif depuis un temps clos, et cette grammaire suffit à faire croire qu’il y est. ce qui va vite paraît vivant — c’est la confusion sur laquelle tout repose.",
-    "weights": {
-     "Debord": 10,
-     "Meillassoux": 90,
-     "Garcia": 60
-    },
-    "model": "claude-opus-4-8"
    }
   ]
  },
