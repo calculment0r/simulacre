@@ -44,6 +44,24 @@
    "Nico": 1781208658858
   }
  },
+ "147": {
+  "activeId": "orig",
+  "versions": [
+   {
+    "id": "v_5pzyct_1",
+    "fragment": "chaque requête a le même poids que la précédente, c'est-à-dire aucun. la machine ne connaît pas l'instant rare, l'échange qui aurait dû compter davantage ; tout ce qui passe par elle vaut exactement ce que vaut le reste. le sujet éparpillé se tourne vers le modèle comme on attend une heure, et reçoit en retour une intensité plate, étalée, sans pic. il croit demander le présent du monde ; on lui rend une succession de moments qui ne s'additionnent pas. rien ne s'y dépose, rien n'y mûrit, chaque session efface la possibilité même d'une durée. l'objet qui devait le tenir dans le temps le maintient hors du temps, dans un maintenant qui recommence sans jamais avancer. le passé des échanges n'existe pas : il n'y a que des transactions équivalentes, jetables, déjà oubliées au moment où elles se font. l'expérience supposait que les instants ne se valent pas. ici tout se vaut, donc rien ne pèse.",
+    "author": "Nico",
+    "ts": 1781345998766,
+    "tweak": "Le sujet dispersé d’Unititudes se tourne vers le modèle en attendant le présent du monde — pivot du sujet vers son objet temporel.",
+    "weights": {
+     "Debord": 7,
+     "Stiegler": 27,
+     "Garcia": 95
+    },
+    "model": "claude-opus-4-8"
+   }
+  ]
+ },
  "218": {
   "activeId": "orig",
   "versions": [],
