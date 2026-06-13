@@ -17,7 +17,8 @@ const TYPES = {
 createServer(async (req, res) => {
   try {
     let p = decodeURIComponent(req.url.split('?')[0]);
-    if (p === '/') p = '/index.html';
+    if (p.endsWith('/')) p += 'index.html';        // index de répertoire (/, /kubernan/, …)
+    else if (!extname(p)) p += '/index.html';       // /kubernan → /kubernan/index.html
     const file = normalize(join(ROOT, p));
     if (!file.startsWith(ROOT)) { res.writeHead(403); return res.end('forbidden'); }
     const data = await readFile(file);
