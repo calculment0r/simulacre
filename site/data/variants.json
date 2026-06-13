@@ -141,7 +141,7 @@
   ]
  },
  "136": {
-  "activeId": "v_5rovuw_5",
+  "activeId": "v_5rtcbz_6",
   "versions": [
    {
     "id": "v_5rovuw_5",
@@ -155,6 +155,13 @@
      "Sloterdijk": 93
     },
     "model": "claude-opus-4-8"
+   },
+   {
+    "id": "v_5rtcbz_6",
+    "fragment": "Le Simulacre sait tout de ce qu'il n'a pas traversé. il décrit la douleur sans avoir eu de corps, la guerre sans avoir eu de camp, la perte sans avoir rien eu à perdre. savoir n'est pas avoir vu, et décrire n'est pas répondre de. attester suppose une exposition, une mise en jeu, une perte possible. il renseigne sur tout depuis nulle part, à l'abri de tout. il informe sans avoir jamais été en cause. il répond de rien.",
+    "author": "Nico",
+    "ts": 1781349049519,
+    "origin": "manual"
    }
   ]
  },
