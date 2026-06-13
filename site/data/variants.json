@@ -208,6 +208,24 @@
    }
   ]
  },
+ "152": {
+  "activeId": "orig",
+  "versions": [
+   {
+    "id": "v_5tbnvi_8",
+    "fragment": "la distraction, l'oubli, la rêverie sont les ratés qu'on rêverait d'extirper de soi. ils sont l'étoffe même d'une vie qui dure. le simulacre ne se distrait pas : il n'y a personne à distraire. il n'oublie pas comme on oublie, faute d'un fil d'où quelque chose pourrait tomber. son absence de défaut n'est pas une perfection. c'est qu'il n'y a rien à imperfectionner.",
+    "author": "Nico",
+    "ts": 1781351583902,
+    "tweak": "oublie le contexte et traite mon sujet en 250 caractères: distraction, oubli, rêverie — les ratés qu’on rêverait de supprimer en nous sont l’étoffe d’une vie continue. le Simulacre ne se distrait pas : il n’y a personne à distraire. il n’oublie pas comme on oublie, faute d’un fil d’où quelque chose pourrait tomber. son absence de défaut n’est pas une perfection, c’est qu’il n’y a rien à imperfectionner.",
+    "weights": {
+     "Debord": 8,
+     "Tiqqun": 88,
+     "Garcia": 60
+    },
+    "model": "claude-opus-4-8"
+   }
+  ]
+ },
  "218": {
   "activeId": "orig",
   "versions": [],
