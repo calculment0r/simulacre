@@ -44,6 +44,24 @@
    "Nico": 1781208658858
   }
  },
+ "125": {
+  "activeId": "orig",
+  "versions": [
+   {
+    "id": "v_5q5p5c_3",
+    "fragment": "penser, c'est durer dans la difficulté ; on se constitue dans cette durée même. le simulacre promet de rendre ce temps — mais le temps qu'il rend est vidé de l'épreuve qui le faisait nôtre. gagner du temps sur la pensée, c'est perdre le temps où l'on devenait quelqu'un.",
+    "author": "Nico",
+    "ts": 1781346266768,
+    "tweak": "300 charactere max : Le sujet dispersé d’Unititudes se tourne vers le modèle en attendant le présent du monde — pivot du sujet vers son objet temporel.",
+    "weights": {
+     "Stiegler": 19,
+     "Simondon": 84,
+     "Bergson": 83
+    },
+    "model": "claude-opus-4-8"
+   }
+  ]
+ },
  "147": {
   "activeId": "orig",
   "versions": [
