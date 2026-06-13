@@ -64,7 +64,21 @@
  },
  "126": {
   "activeId": "orig",
-  "versions": []
+  "versions": [
+   {
+    "id": "v_5r50dr_7",
+    "fragment": "le calendrier n'est plus tenu par les vivants. les générations qui comptent désormais sont celles des modèles, qui se succèdent sans retour. chacun règle sa durée sur des cycles qu'il ne fixe pas. le temps de l'infrastructure ne demande pas l'accord des corps qu'il cadence. nous vieillissons à son rythme, jamais l'inverse. l'irréversible a changé de camp.",
+    "author": "Nico",
+    "ts": 1781347914287,
+    "tweak": "en 300 characteres max : oublie le contexte et traite ce nouveau point de vue : Ce fragment montre que le rythme de nos vies est désormais cadencé par les cycles d'entraînement et de déploiement des modèles : ce n'est plus le temps des humains qui s'impose, mais celui de l'infrastructure technique, auquel chacun doit s'ajuster. Le calendrier du Simulacre — ses générations de modèles qui se succèdent irréversiblement — remplace le temps propre des vivants.",
+    "weights": {
+     "Debord": 11,
+     "Meillassoux": 85,
+     "Garcia": 60
+    },
+    "model": "claude-opus-4-8"
+   }
+  ]
  },
  "147": {
   "activeId": "orig",
