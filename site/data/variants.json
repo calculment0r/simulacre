@@ -124,7 +124,21 @@
  },
  "135": {
   "activeId": "orig",
-  "versions": []
+  "versions": [
+   {
+    "id": "v_5rj6ma_3",
+    "fragment": "le simulacre parle de l'époque sans en être. il en a tous les mots et aucun des jours. l'empreinte est parfaite, la chair qui l'a laissée n'y est plus. le détail n'est pas la présence.",
+    "author": "Nico",
+    "ts": 1781348575555,
+    "tweak": "oublie le contexte et traite mon sujet en 250 characteres: le Simulacre parle de l’époque sans en être. il en a tous les mots et aucun des jours. l’empreinte est parfaite, la chair qui l’a laissée n’y est plus. il décrit le présent dans le détail et ne peut pas y être. le détail n’est pas la présence.",
+    "weights": {
+     "Debord": 14,
+     "Garcia": 60,
+     "Sloterdijk": 89
+    },
+    "model": "claude-opus-4-8"
+   }
+  ]
  },
  "147": {
   "activeId": "orig",
