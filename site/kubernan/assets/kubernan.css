@@ -7,8 +7,9 @@
 /* mesure de ligne confortable (~66-72 caractères) */
 .kub .container { max-width: 720px; }
 
-/* « sécession » — mot-maître retourné de l'adversaire : à l'accent de la charte */
-.hl-sec { color: var(--accent); }
+/* lexique en couleur (BRIEF_concepts_en_couleur) : l'épine conceptuelle brille
+   discrètement — couleur accent + glow très léger, pas de fond, pas de gras. */
+.concept { color: var(--accent); text-shadow: 0 0 14px rgba(201, 255, 60, 0.18); }
 
 /* ── sidebar : sous-titre nautique sous chaque bifurcation ──────── */
 .chapters a .nm small {

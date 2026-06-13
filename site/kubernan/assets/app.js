@@ -15,11 +15,41 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+  // ── lexique en couleur (cf. BRIEF_concepts_en_couleur) ──────────
+  // mot entier ; jamais dans les titres (eux passent par esc(), pas md()).
+  // classe de lettres sans lookbehind (compat. Safari) : on capture la
+  // frontière de gauche et on la réémet.
+  const L = 'A-Za-zÀ-ÿ';
+  // noyau : chaque occurrence
+  const RE_CORE = new RegExp(`(^|[^${L}])(Simulacre|Simulation|Focus|Grand Dehors|[Kk]ubernân)(?![${L}])`, 'g');
+  // sécession : uniquement sur le chiasme (« sécession du calcul … »)
+  const RE_SECESSION = new RegExp(`(^|[^${L}])(sécession)(?= du calcul)`, 'g');
+  // second cercle : première occurrence seulement (par passe de rendu)
+  const SECOND = [
+    ['pleonexie', new RegExp(`(^|[^${L}])(pléonexie)(?![${L}])`)],
+    ['desencastrement', new RegExp(`(^|[^${L}])(désencastrement)(?![${L}])`)],
+    ['reencastrement', new RegExp(`(^|[^${L}])(ré-encastrement|ré-encastré)(?![${L}])`)],
+  ];
+  const seenConcepts = new Set();
+  const wrap = (pre, w) => `${pre}<span class="concept">${w}</span>`;
+  const concepts = (t) => {
+    t = t.replace(RE_CORE, (m, pre, w) => wrap(pre, w));
+    t = t.replace(RE_SECESSION, (m, pre, w) => wrap(pre, w));
+    for (const [key, re] of SECOND) {
+      if (seenConcepts.has(key)) continue;
+      let hit = false;
+      t = t.replace(re, (m, pre, w) => { hit = true; return wrap(pre, w); });
+      if (hit) seenConcepts.add(key);
+    }
+    return t;
+  };
+
   const md = (s) =>
-    esc(s)
-      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-      .replace(/([Ss]écessions?)/g, '<span class="hl-sec">$1</span>') // mot-maître, à l'accent de la charte
+    concepts(
+      esc(s)
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+    )
       .replace(/«\s/g, '«&nbsp;')
       .replace(/\s([?!:;»])/g, '&nbsp;$1');
   const paras = (arr) => (arr || []).map((p) => `<p>${md(p)}</p>`).join('');
@@ -222,6 +252,7 @@
   // ── orchestration ───────────────────────────────────────────────
   function route() {
     const r = parseHash();
+    seenConcepts.clear(); // « première occurrence » du second cercle, par passe de rendu
     renderSidebar(r);
 
     let html = '', titleSuffix = '';
