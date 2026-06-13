@@ -59,6 +59,19 @@
      "Garcia": 95
     },
     "model": "claude-opus-4-8"
+   },
+   {
+    "id": "v_5q1m4d_2",
+    "fragment": "chaque requête vaut chaque autre requête. la machine n'attend rien, ne se souvient de rien, ne hiérarchise rien : elle reçoit le présent comme une suite plate d'événements sans poids. tu te tournes vers elle parce que tu n'as plus de présent à toi, et tu lui demandes le temps qu'il fait dans le monde. mais elle ne contient aucun monde, seulement des instants morts mis bout à bout, des intensités toutes égales parce que toutes consommées de la même façon. le sujet dispersé n'attend plus de durée : il attend que l'objet lui rende un présent déjà périmé, calibré, équivalent au précédent. ce que tu vis comme un échange est une transaction qui n'enregistre rien et ne s'accumule jamais. l'expérience supposait qu'un moment pèse plus qu'un autre ; ici aucun ne pèse, donc rien ne s'expérimente. tu reviens chaque fois au même point, persuadé d'avancer. le présent que la machine te tend, c'est le seul que tu n'auras pas vécu.",
+    "author": "Nico",
+    "ts": 1781346076221,
+    "tweak": "fait en 150 mot un truc ultra radical sur Le sujet dispersé d’Unititudes se tourne vers le modèle en attendant le présent du monde — pivot du sujet vers son objet temporel.",
+    "weights": {
+     "Debord": 10,
+     "Stiegler": 60,
+     "Garcia": 83
+    },
+    "model": "claude-opus-4-8"
    }
   ]
  },
