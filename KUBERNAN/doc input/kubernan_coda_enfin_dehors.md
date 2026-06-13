@@ -3,7 +3,7 @@
 
 *[Seuil — l'ellipse. Se lit avant la lettre, après la dernière bifurcation.]*
 
-Ici, le livre se tait, et le temps commence.
+Ici, le Carnet se tait, et le temps commence.
 
 Entre cette page et la suivante, il n'y a qu'un blanc. Mais ce blanc n'est pas vide : il a duré. On nous a appris à croire que tout se décide en une seconde — ou que rien ne se décide jamais. Deux mensonges, et le même : deux façons de nous tenir tranquilles. Ce qui vient a demandé plus de patience qu'aucun manifeste n'en promet, plus d'années qu'une vie parfois n'en contient. Le passage qui ne tient pas dans une phrase a tenu dans des existences — on y a vieilli, on y est né, certains sont partis sans voir le large.
 
