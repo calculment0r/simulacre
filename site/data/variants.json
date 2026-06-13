@@ -140,6 +140,24 @@
    }
   ]
  },
+ "141": {
+  "activeId": "orig",
+  "versions": [
+   {
+    "id": "v_5rmav6_4",
+    "fragment": "il tourne sur une croyance : que demain ressemblera, en gros, à hier. rien ne le garantit — ni les régularités, ni les lois qui les portent. le réel peut à tout instant ne pas continuer comme prévu. c'est là sa liberté la plus nue. le simulacre est l'organe d'un monde supposé stable, branché sur un monde qui ne l'a jamais promis.",
+    "author": "Nico",
+    "ts": 1781348721026,
+    "tweak": "oublie le contexte et traite en 300 characteres ca: il tourne sur une croyance : que demain ressemblera, en gros, à hier. rien ne le garantit — ni les régularités, ni les lois qui les portent. le réel peut à tout instant ne pas continuer comme prévu, et c’est là sa liberté la plus nue. le Simulacre est l’organe d’un monde supposé stable, branché sur un monde qui ne l’a jamais promis.",
+    "weights": {
+     "Debord": 14,
+     "Meillassoux": 94,
+     "Garcia": 91
+    },
+    "model": "claude-opus-4-8"
+   }
+  ]
+ },
  "147": {
   "activeId": "orig",
   "versions": [
