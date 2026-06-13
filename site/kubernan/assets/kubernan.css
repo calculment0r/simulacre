@@ -149,87 +149,29 @@
   margin-bottom: 30px;
 }
 .cover h1 .lp { color: var(--accent); }
-.cover .cover-sub {
-  font-family: var(--serif);
-  font-size: clamp(18px, 2.4vw, 22px);
-  line-height: 1.55;
-  color: var(--muted);
-  max-width: 600px;
-  margin-bottom: 40px;
-}
-.cover .cover-epi {
+/* « nous sommes ici » — le « vous êtes ici » de la carte */
+.cover-here {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
   font-family: var(--serif);
   font-style: italic;
-  font-size: clamp(22px, 3vw, 30px);
-  line-height: 1.4;
+  font-size: clamp(23px, 3.2vw, 32px);
+  line-height: 1.2;
   color: var(--text);
-  border-left: 3px solid var(--accent);
-  padding-left: 22px;
-  max-width: 560px;
-  margin-bottom: 64px;
+  margin: 4px 0 54px;
 }
-.cover .cover-epi cite {
-  display: block;
-  margin-top: 16px;
-  font-style: normal;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--dim);
+.cover-here::before {
+  content: '';
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(201, 255, 60, 0.14);
+  flex: 0 0 auto;
 }
 
-/* sommaire des bifurcations sur le seuil */
-.toc { border-top: 1px solid var(--border); }
-.toc a {
-  display: grid;
-  grid-template-columns: 54px 1fr;
-  gap: 0 18px;
-  align-items: baseline;
-  text-decoration: none;
-  padding: 22px 6px;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.16s;
-}
-.toc a:hover { background: var(--bg2); }
-.toc .toc-num {
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--dim);
-  letter-spacing: 0.05em;
-}
-.toc a:hover .toc-num { color: var(--accentDim); }
-.toc .toc-nm {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: clamp(22px, 3vw, 28px);
-  line-height: 1.12;
-  color: var(--text);
-}
-.toc a:hover .toc-nm { color: var(--accent); }
-.toc .toc-sub {
-  grid-column: 2;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  margin-top: 8px;
-}
-
-.cover-enter {
-  margin-top: 44px;
-  display: inline-block;
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--accent);
-  text-decoration: none;
-  border: 1px solid var(--accentDim);
-  padding: 14px 22px;
-  transition: background 0.18s, color 0.18s;
-}
-.cover-enter:hover { background: var(--accent); color: #0a0a0c; }
+/* la préface coule directement sous le titre */
+.cover-preface { border-top: 1px solid var(--border); padding-top: 50px; }
 
 /* ════════════ CODA — « ENFIN DEHORS » (au-delà de la passe) ════════════
    On a quitté l'atlas : page seule, sans la barre latérale, registre épistolaire

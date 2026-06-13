@@ -28,8 +28,7 @@
   // ''/seuil · preface · b-<n> · b-<n>-<k> (focus section) · dehors
   function parseHash() {
     const h = location.hash.replace(/^#/, '');
-    if (!h || h === 'seuil') return { view: 'seuil' };
-    if (h === 'preface') return { view: 'preface' };
+    if (!h || h === 'seuil' || h === 'preface') return { view: 'home' };
     if (h === 'coda' || h === 'dehors') return { view: 'coda' };
     let m;
     if ((m = h.match(/^b-(\d+)(?:-(\d+|c))?$/))) {
@@ -52,10 +51,10 @@
     const isBif = route.view === 'bif';
 
     const prefLi = `
-      <li><a href="#preface" class="${route.view === 'preface' ? 'active' : ''}">
+      <li><a href="#seuil" class="${route.view === 'home' ? 'active' : ''}">
         <span class="num">00</span>
         <span class="nm">Préface</span>
-        <span class="rg">avant de partir</span>
+        <span class="rg">le commencement</span>
       </a></li>`;
 
     const bifLis = BIFS.map((b) => {
@@ -112,42 +111,19 @@
   }
 
   // ── pages ───────────────────────────────────────────────────────
-  function seuilHTML() {
-    const toc =
-      `<a href="#preface"><span class="toc-num">00</span><span class="toc-nm">Préface</span><span class="toc-sub">une carte, pas un traité</span></a>` +
-      BIFS.map(
-        (b) =>
-          `<a href="#b-${b.n}"><span class="toc-num">${esc(b.roman)}</span><span class="toc-nm">${esc(
-            b.titre
-          )}</span><span class="toc-sub">${esc(b.sous_titre)}</span></a>`
-      ).join('') +
-      `<a href="#coda"><span class="toc-num">∮</span><span class="toc-nm">Enfin dehors</span><span class="toc-sub">la coda — lettre, de l'autre côté de la passe</span></a>`;
-
-    return `<section class="cover">
-      <div class="cover-kicker">${esc(META.serie || '')}</div>
-      <h1>kubernân, <span class="lp">où sortir&nbsp;?</span></h1>
-      <p class="cover-sub">${md((META.subtitle && META.subtitle[0]) || '')}</p>
-      <blockquote class="cover-epi">${md(META.pacte || '')}<cite>— la préface</cite></blockquote>
-      <div class="toc">${toc}</div>
-      <a class="cover-enter" href="#preface">relever la position →</a>
-    </section>`;
-  }
-
-  function prefaceHTML() {
+  // home = le titre + la préface (la navigation est dans la sidebar, pas de sommaire)
+  function homeHTML() {
     const p = K.preface || { paras: [] };
-    return `<header class="ch-head">
-        <div class="label">Le seuil</div>
-        <h1>Préface</h1>
-        <div class="sub">une carte, pas un traité.</div>
-      </header>
-      <div class="prose lead">${paras(p.paras)}</div>
-      <a class="suite" href="#b-1">
-        <span class="suite-k">Première bifurcation</span>
-        <span class="suite-t">L'Archipel <span class="arr">→</span></span>
-      </a>
-      <nav class="ch-foot">
-        <a class="prev" href="#seuil"><span class="dir">← retour</span>le seuil</a>
-      </nav>`;
+    return `<section class="cover">
+        <div class="cover-kicker">${esc(META.serie || '')}</div>
+        <h1>kubernân, <span class="lp">où sortir&nbsp;?</span></h1>
+        <p class="cover-here">nous sommes ici</p>
+        <div class="prose lead cover-preface">${paras(p.paras)}</div>
+        <a class="suite" href="#b-1">
+          <span class="suite-k">Première bifurcation</span>
+          <span class="suite-t">L'Archipel <span class="arr">→</span></span>
+        </a>
+      </section>`;
   }
 
   function bifHTML(b) {
@@ -248,8 +224,7 @@
     renderSidebar(r);
 
     let html = '', titleSuffix = '';
-    if (r.view === 'seuil') { html = seuilHTML(); titleSuffix = ''; }
-    else if (r.view === 'preface') { html = prefaceHTML(); titleSuffix = ' — Préface'; }
+    if (r.view === 'home') { html = homeHTML(); titleSuffix = ''; }
     else if (r.view === 'coda') { html = codaHTML(); titleSuffix = ' — Enfin dehors'; }
     else { const b = bifByN(r.n); html = bifHTML(b); titleSuffix = ` — ${b.roman}. ${b.titre}`; }
 
