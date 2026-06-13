@@ -124,21 +124,7 @@
  },
  "135": {
   "activeId": "orig",
-  "versions": [
-   {
-    "id": "v_5rfqg8_2",
-    "fragment": "chaque sortie de modèle est annoncée comme une saison. la version nouvelle promet un monde nouveau et ne livre que son numéro. il parle de l'époque sans jamais en être. il en a tous les mots et aucun des jours. l'empreinte est parfaite, la chair qui l'a laissée n'y est plus. il décrit le présent dans le détail et ne peut pas l'habiter. on attend la prochaine version comme on attendait la prochaine collection, pour remplir un temps qui ne contient que sa propre relance. le détail n'est pas la présence.",
-    "author": "Nico",
-    "ts": 1781348414632,
-    "tweak": "en 250 characteres: il parle de l’époque sans en être. il en a tous les mots et aucun des jours. l’empreinte est parfaite, la chair qui l’a laissée n’y est plus. il décrit le présent dans le détail et ne peut pas y être. le détail n’est pas la présence.",
-    "weights": {
-     "Debord": 15,
-     "Garcia": 60,
-     "Sloterdijk": 86
-    },
-    "model": "claude-opus-4-8"
-   }
-  ]
+  "versions": []
  },
  "147": {
   "activeId": "orig",
