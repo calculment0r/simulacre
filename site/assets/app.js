@@ -64,6 +64,8 @@
         </a>
       </div>
 
+      <button class="theme-toggle" id="themeToggle" title="changer de thème">◐ thème <span id="themeLabel"></span></button>
+
       <form class="jump" id="jumpForm">
         <label for="jumpN">N°</label>
         <input id="jumpN" type="number" min="1" max="221" placeholder="1–221" inputmode="numeric">
@@ -87,6 +89,17 @@
       location.hash = 'f-' + n;
       $('#jumpN').value = '';
     });
+
+    const tt = $('#themeToggle');
+    if (tt) {
+      const setLbl = () => { const l = $('#themeLabel'); if (l) l.textContent = document.documentElement.classList.contains('dark') ? 'clair' : 'sombre'; };
+      setLbl();
+      tt.onclick = () => {
+        const dark = document.documentElement.classList.toggle('dark');
+        try { localStorage.setItem('sim_theme', dark ? 'dark' : 'light'); } catch (e) {}
+        setLbl();
+      };
+    }
 
     if (window.GodMode) window.GodMode.onRenderSidebar($('#sidebar'));
   }

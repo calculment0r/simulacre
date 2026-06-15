@@ -2,6 +2,27 @@
    OBLIVION — LA SOCIÉTÉ DU SIMULACRE / DE LA SIMULATION
    ════════════════════════════════════════════════════════════════ */
 :root {
+  /* ── thème CLAIR (par défaut) ── */
+  --bg: #f7f6f1;
+  --bg2: #ffffff;
+  --bg3: #eeede7;
+  --border: #e3dfd5;
+  --border2: #d0cbbe;
+  --text: #1c1c22;
+  --muted: #5b5b69;
+  --dim: #9d9b8f;
+  --accent: #5f8c00;
+  --accentDim: #7aa81e;
+  --red: #d11e2e;
+  --amber: #b8740a;
+  --blue: #1f6fd0;
+  --violet: #6a3fd0;
+  --sidebar-w: 312px;
+  --mono: 'DM Mono', ui-monospace, monospace;
+  --serif: 'Instrument Serif', Georgia, serif;
+}
+html.dark {
+  /* ── thème SOMBRE (Oblivion) ── */
   --bg: #0a0a0c;
   --bg2: #111114;
   --bg3: #18181d;
@@ -16,9 +37,6 @@
   --amber: #ffaa33;
   --blue: #4499ff;
   --violet: #9966ff;
-  --sidebar-w: 312px;
-  --mono: 'DM Mono', ui-monospace, monospace;
-  --serif: 'Instrument Serif', Georgia, serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -56,7 +74,8 @@ body::before {
 }
 
 a { color: inherit; }
-::selection { background: rgba(201,255,60,0.22); }
+::selection { background: rgba(95,140,0,0.20); }
+html.dark ::selection { background: rgba(201,255,60,0.22); }
 
 /* ── DM Mono utility labels ────────────────────────────────────── */
 .mono { font-family: var(--mono); }
@@ -773,3 +792,7 @@ body.god-on ::-moz-selection { background: var(--god-sel, rgba(201,255,60,0.30))
 /* zone de texte du commentaire : cadre à la couleur du user */
 #annoMsg { border: 1px solid var(--god-color, var(--accent)); }
 #annoMsg:focus { border-color: var(--god-color, var(--accent)); box-shadow: inset 0 0 0 1px var(--god-color, var(--accent)); }
+
+/* bascule de thème */
+.theme-toggle { width: 100%; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; background: transparent; border: 1px solid var(--border2); color: var(--muted); padding: 9px; cursor: pointer; transition: all .18s; }
+.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
