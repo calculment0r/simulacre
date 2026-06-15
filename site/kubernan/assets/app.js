@@ -310,6 +310,13 @@
   const mb = $('#menuBtn');
   if (mb) mb.addEventListener('click', () => document.body.classList.toggle('nav-open'));
 
+  // bouton bascule de thème
+  const tb = $('#themeBtn');
+  if (tb) tb.addEventListener('click', () => {
+    const dark = document.body.classList.toggle('theme-dark');
+    try { localStorage.setItem('kubernan-theme', dark ? 'dark' : 'light'); } catch (e) {}
+  });
+
   if (!BIFS.length) {
     $('#content').innerHTML =
       '<p style="font-family:var(--mono);color:var(--red)">Données absentes : data/book.js introuvable.</p>';

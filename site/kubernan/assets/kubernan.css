@@ -8,8 +8,60 @@
 .kub .container { max-width: 720px; }
 
 /* lexique en couleur (BRIEF_concepts_en_couleur) : l'épine conceptuelle brille
-   discrètement — couleur accent + glow très léger, pas de fond, pas de gras. */
-.concept { color: var(--accent); text-shadow: 0 0 14px rgba(201, 255, 60, 0.18); }
+   discrètement — couleur accent + glow très léger (sombre only), pas de fond. */
+.concept { color: var(--accent); }
+body.kub.theme-dark .concept { text-shadow: 0 0 14px rgba(201, 255, 60, 0.18); }
+
+/* ════════════════════════════════════════════════════════════════
+   THÈME — clair par défaut (papier), sombre en bascule (Oblivion).
+   Scopé à .kub : n'affecte que Kubernân, pas le site Simulacre.
+   On redéfinit les variables d'Oblivion sur le <body>.
+   ════════════════════════════════════════════════════════════════ */
+body.kub {
+  --bg: #f7f5ee;        /* papier chaud */
+  --bg2: #efece2;       /* panneaux / sidebar */
+  --bg3: #e7e3d6;       /* survol */
+  --border: #e3dfd2;
+  --border2: #d1ccbb;
+  --text: #1c1b22;      /* presque noir, chaud */
+  --muted: #565568;
+  --dim: #7c7b90;
+  --accent: #5c7d0a;    /* chartreuse foncé, lisible sur clair */
+  --accentDim: #7e9636;
+}
+body.kub.theme-dark {
+  --bg: #0a0a0c;
+  --bg2: #111114;
+  --bg3: #18181d;
+  --border: #1e1e26;
+  --border2: #2a2a36;
+  --text: #e8e8f0;
+  --muted: #9090a8;
+  --dim: #4a4a62;
+  --accent: #c9ff3c;
+  --accentDim: #8aad1e;
+}
+/* en clair, le grain (calque sombre) doit rester très discret */
+body.kub:not(.theme-dark)::before { opacity: 0.5; mix-blend-mode: multiply; }
+
+/* bouton bascule de thème */
+.theme-btn {
+  position: fixed;
+  top: 16px; right: 16px;
+  z-index: 200;
+  width: 44px; height: 44px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  color: var(--accent);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.18s, border-color 0.18s, background 0.18s;
+}
+.theme-btn:hover { border-color: var(--accent); }
+@media (max-width: 920px) { .theme-btn { right: 70px; } }     /* dégage le bouton menu */
+body.coda-view .theme-btn { right: 16px; }                    /* en coda, pas de bouton menu */
 
 /* ── sidebar : sous-titre nautique sous chaque bifurcation ──────── */
 .chapters a .nm small {
